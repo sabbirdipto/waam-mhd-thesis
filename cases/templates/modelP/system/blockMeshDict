@@ -1,0 +1,40 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters 1;
+
+// x: -pad .. deposit_len+pad   y: 0 (half) or -halfw (full) .. halfw
+// z: -substrate .. air height
+vertices
+(
+    (@x_min_m@ @y_min_m@ @z_min_m@)
+    (@x_max_m@ @y_min_m@ @z_min_m@)
+    (@x_max_m@ @y_max_m@ @z_min_m@)
+    (@x_min_m@ @y_max_m@ @z_min_m@)
+    (@x_min_m@ @y_min_m@ @z_max_m@)
+    (@x_max_m@ @y_min_m@ @z_max_m@)
+    (@x_max_m@ @y_max_m@ @z_max_m@)
+    (@x_min_m@ @y_max_m@ @z_max_m@)
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (@nx@ @ny@ @nz@) simpleGrading (1 1 1)
+);
+
+boundary
+(
+    inlet     { type patch;    faces ((4 5 6 7)); }
+    outlet    { type patch;    faces ((0 3 7 4) (1 2 6 5)); }
+    symmetry  { type symmetryPlane; faces ((0 1 5 4)); }
+    walls     { type wall;     faces ((0 1 2 3) (3 2 6 7)); }
+);
+
+// ************************************************************************* //

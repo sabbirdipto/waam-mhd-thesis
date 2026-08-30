@@ -1,0 +1,40 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     @solver@;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         @end_time_s@;
+
+deltaT          @dt_s@;
+
+// adjustable so the write times land exactly on writeInterval
+writeControl    adjustableRunTime;
+writeInterval   @write_interval_s@;
+purgeWrite      @purge_write@;
+
+// binary + compression: roughly 5-10x smaller than the ascii default.
+// This is not optional on a 512 GB laptop drive.
+writeFormat     binary;
+writePrecision  8;
+writeCompression on;
+
+timeFormat      general;
+timePrecision   8;
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+maxCo           0.5;
+maxAlphaCo      0.5;
+maxDeltaT       @dt_s@;
+
+// ************************************************************************* //
