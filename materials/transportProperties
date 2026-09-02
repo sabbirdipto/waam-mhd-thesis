@@ -130,12 +130,41 @@ Marangoni_Constant  -1.55e-4;   // N/m/K
 
 p0                  101300;     // Pa [ZHAO] Table 4
 
-// Vaporisation. Zhao assumption 3 explicitly NEGLECTS vaporisation heat and
-// mass loss. Real Al values are given so the model is physical if it ever
-// triggers, but at WAAM pool temperatures it should not.
-Tvap                2743;       // K    [MEAS] boiling point of aluminium
+// ============================================================ vaporisation
+// DELIBERATELY DISABLED. Tvap below is a SWITCH, not a property value.
+//
+// Zhao assumption 3: "the heat and mass loss caused by vaporization of liquid
+// is not considered." Both the recoil pressure (UEqn.H:48) and the evaporative
+// heat loss (TEqn.H:31) share one factor, exp(Lv*Mm*(T-Tvap)/(R*T*Tvap)), so
+// raising Tvap disables exactly the pair the paper drops. At WAAM temperatures
+// the exponent goes to about -21 and both terms fall to ~1e-5 of their value.
+//
+// WHY, given aluminium's real Tvap is 2743 K:
+//   * The recoil PRESSURE was never the issue -- under 2 Pa at 1500 K against
+//     228 Pa of arc pressure. WAAM has no keyhole; that is laser physics.
+//   * The evaporative COOLING is not negligible: 8.7% of surface heat loss at
+//     1500 K, 24% at 1600 K, 70% at 1800 K.
+//   * And that is the reason to disable it. Zhao fitted af/ar/b/c against a
+//     measured pool shape in a model WITHOUT evaporative cooling, so those
+//     coefficients already absorb its absence. Keeping Qv while using their
+//     Goldak parameters would apply a heat source tuned for a no-evaporation
+//     model AND the cooling, giving a pool too small for an untraceable reason.
+//
+// CONSEQUENCE -- read this before trusting a hot result:
+//   Evaporative cooling is a strong negative feedback above ~1700 K. Removing
+//   it removes the physics that would have capped the temperature. Monitor
+//   max(T): an Al-5Mg pool has no business above ~1600 K, and with Qv off
+//   nothing in the model will stop it.
+//
+// To restore physical behaviour for a comparison run, set Tvap 2743.
+Tvap                1.0e6;      // K    [SWITCH] see above. Al's real value is 2743
 Mm                  0.02698;    // kg/mol [MEAS] molar mass of aluminium
-LatentHeatVap       1.05e7;     // J/kg [MEAS] Al heat of vaporisation
+LatentHeatVap       1.05e7;     // J/kg [MEAS] Al heat of vaporisation.
+                                //   NOTE: do NOT zero this to disable evaporation.
+                                //   It is a PREFACTOR in Qv but sits INSIDE the
+                                //   exponent in pVap, so Lv=0 gives exp(0)=1 and
+                                //   pins pVap at 0.54*p0 = 54,702 Pa everywhere --
+                                //   240x arc pressure over the whole free surface.
 
 // EMISSIVITY, blended by liquid fraction in TEqn.H line 15:
 //     em = epsilon1*emL + (1 - epsilon1)*emS
