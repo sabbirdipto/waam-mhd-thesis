@@ -45,7 +45,6 @@ import fnmatch
 import json
 import re
 import shutil
-import hashlib
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -460,45 +459,6 @@ def audit(rows):
     return problems, notes
 
 
-# --------------------------------------------------------------------------
-# Phase 2 property set. One source of truth, copied into every case.
-
-MATERIALS_DIR = Path.home() / "thesis" / "materials"
-PROPERTIES_SRC = MATERIALS_DIR / "transportProperties"
-
-
-def properties_sha():
-    """12-char fingerprint of the property set currently on disk."""
-    if not PROPERTIES_SRC.exists():
-        die(f"missing {PROPERTIES_SRC}\n"
-            f"  build it with:  python3 {MATERIALS_DIR}/make_transport.py")
-    return hashlib.sha256(PROPERTIES_SRC.read_bytes()).hexdigest()[:12]
-
-
-def install_properties(case_dir):
-    """Copy the material dictionary into a case. Returns its fingerprint.
-
-    Copied, never symlinked: a symlink is stored as a link by tar and arrives
-    dangling on the cluster, and it would make every past case silently point
-    at whatever the properties are today rather than what they ran with.
-    """
-    dst = case_dir / "constant" / "transportProperties"
-    dst.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(PROPERTIES_SRC, dst)     # copy2 preserves mtime
-    return properties_sha()
-
-
-def stored_properties_sha(case_dir):
-    """The fingerprint recorded when this case was generated, or None."""
-    meta = case_dir / "case_meta.json"
-    if not meta.exists():
-        return None
-    try:
-        return json.loads(meta.read_text()).get("properties_sha")
-    except (ValueError, OSError):
-        return None
-
-
 def build_case(row, templates_dir, out_root, args, repo_root):
     case_id = row["case_id"].strip()
     model = row["model"].strip().upper()
@@ -524,20 +484,6 @@ def build_case(row, templates_dir, out_root, args, repo_root):
 
     if dest.exists():
         if has_results(dest) and not args.force:
-            # This case keeps its old results while others are rebuilt. If it
-            # ran on a different property set, comparing them is invalid --
-            # and nothing else in the pipeline would notice.
-            was = stored_properties_sha(dest)
-            now = properties_sha()
-            if was is not None and was != now:
-                msg = (f"{case_id} holds results built with a DIFFERENT property "
-                       f"set.\n      recorded {was}, current {now}\n"
-                       f"      Comparing it against newly built cases is not valid. "
-                       f"Re-run it with --force, or restore the old properties.")
-                if getattr(args, "ignore_audit", False):
-                    print(f"      *** {msg}\n      (--ignore-audit: continuing)")
-                else:
-                    die(msg)
             print(f"      SKIPPED -- folder holds run output. Use --force to overwrite.")
             return "skipped"
         shutil.rmtree(dest)
@@ -548,7 +494,6 @@ def build_case(row, templates_dir, out_root, args, repo_root):
     write_case_parameters(dest, values)
     write_decompose_par_dict(dest, values)
     write_run_scripts(dest, values)
-    props_sha = install_properties(dest)
     unknown = substitute_tree(dest, values)
     if unknown:
         print(f"      WARNING unresolved tokens: {', '.join(sorted(unknown))}")
@@ -560,7 +505,6 @@ def build_case(row, templates_dir, out_root, args, repo_root):
         "generator": Path(__file__).name,
         "csv_row": dict(row),
         "derived": {k: v for k, v in values.items() if k not in row},
-        "properties_sha": props_sha,
     }
     (dest / "case_meta.json").write_text(json.dumps(meta, indent=2))
     return "built"
