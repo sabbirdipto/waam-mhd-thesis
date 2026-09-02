@@ -171,22 +171,6 @@ def has_results(case_dir):
 # derived quantities
 # --------------------------------------------------------------------------
 
-def metal_sigma_e():
-    """The metal's electrical conductivity, read from the property set itself.
-
-    Deliberately NOT duplicated into caseMatrix.csv. The value carries a long
-    provenance comment in transportProperties (Desai + Matthiessen offset,
-    cross-checked to 1% against a measured alloy); copying the bare number into
-    a spreadsheet would separate it from its justification and let the two
-    drift. The gas floor is then always a ratio of the number the metal uses.
-    """
-    for line in PROPERTIES_SRC.read_text().splitlines():
-        s = line.split("//")[0].strip()
-        if s.startswith("Elec_conductivity"):      # metal block precedes gas
-            return float(s.split()[1].rstrip(";"))
-    die(f"no Elec_conductivity found in {PROPERTIES_SRC}")
-
-
 def derive(row):
     """Everything computable from the CSV, so the CSV stays human-editable.
 
@@ -197,18 +181,6 @@ def derive(row):
 
     # --- wire ---
     d["Rw_m"] = as_float(row, "wire_dia_m") / 2.0
-    # --- electrical conductivity of the gas phase ---
-    # The CSV holds a RATIO; the absolute value is derived from the metal's, so
-    # S00/S01 actually vary what they claim to. Fills @sigma_e_gas@ in
-    # transportProperties via substitute_tree.
-    d["sigma_e_gas"] = metal_sigma_e() * as_float(row, "sigma_e_gas_ratio")
-    # --- arc start point, for the Goldak heat source (Phase 3) ---
-    # The domain is built with x_min = -pad_x and z_min = -substrate_z, so the
-    # deposit corner sits at the ORIGIN by construction. Stated explicitly here
-    # so the heat source reads a value instead of re-deriving mesh convention.
-    d["arc_x0_m"] = 0.0
-    d["arc_y0_m"] = 0.0          # symmetry plane
-    d["arc_z0_m"] = 0.0          # substrate top surface
 
     # --- applied magnetic field, mT -> T, resolved onto axes ---
     b_t = as_float(row, "B_mT") / 1000.0

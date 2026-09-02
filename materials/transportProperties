@@ -111,10 +111,14 @@ gas
     // monatomic ideal gas, cp = 5R/2M = 520.3 J/kgK, constant
     poly_cp         (520.3 0 0 0 0 0 0 0);
 
-    // [MEAS-ish] the tutorial's own floor, ratio 1e-6 to the metal. Held
-    // div(muH) at 1e-12 across the jump in Gate B. Do not lower without
-    // re-checking divergence.
-    Elec_conductivity   3.65;
+    // Filled per case by generate_cases.py from sigma_e_gas_ratio in
+    // caseMatrix.csv, as ratio * the metal value above. Baseline ratio 1e-6 --
+    // the MTHD tutorial's own floor, which held div(muH) at 1e-12 across the
+    // jump in Gate B. S00/S01 sweep it two orders either side.
+    // Cold argon is effectively an insulator; this floor exists only to stop
+    // the induction equation going singular as sigma -> 0, so smaller is more
+    // physical until numerics complain. That is what the sweep tests.
+    Elec_conductivity   @sigma_e_gas@;
     Mag_permitivity     1.25664e-6;
 }
 
