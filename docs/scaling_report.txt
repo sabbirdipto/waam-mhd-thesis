@@ -1,0 +1,116 @@
+
+1. UNIT CHECKS  (Zhao Table 2 -> SI)
+------------------------------------
+  travel speed       120.0 cm/min   = 0.02 m/s
+  wire feed          900.0 cm/min   = 0.15 m/s
+  shielding gas       20.0 L/min    = 0.000333333 m3/s
+  wire feed 900 cm/min  = 0.15 m/s   -> matches Zhao Table 3 inlet Vz = 0.15 m/s  OK
+  arc power  U*I        = 2160 W ; into pool at eta=0.7: 1512 W
+
+2. CURRENT DENSITY AND SELF-FIELD
+---------------------------------
+  in the pool,  r = sigma_j = 2.0 mm
+    |J|      = I/(pi sigma_j^2)   = 1.074e+07 A/m2
+    B_theta  = mu0 I/(2 pi r)     = 13.50 mT
+    J x B    = 1.450e+05 N/m3
+  at the wire,  r = Rw = 0.6 mm
+    |J|      = 1.194e+08 A/m2 ,  B = 45.0 mT ,  JxB = 5.371e+06 N/m3
+    (Zhao Sec 4.1 reports droplet EM force 'order 1e6 N/m3'  -> 5.4e+06)
+
+3. FORCE LEDGER  (compared as STRESSES, N/m2)
+---------------------------------------------
+  Surface forces enter as stresses; the CSF conversion to N/m3 divides by
+  the interface thickness, so a volumetric comparison is mesh-dependent and
+  meaningless. Body forces are put on the same footing by multiplying by L.
+
+  arc self-field J x B   [body]            435.09 Pa      5.58 x gravity
+  surface tension  gamma*kappa [surf]      283.33 Pa      3.63 x gravity
+  arc pressure     peak [surf]             227.81 Pa      2.92 x gravity
+  gravity   [body]                          77.99 Pa      1.00 x gravity
+  Marangoni        (dg/dT)(dT/ds) [surf]      15.50 Pa      0.20 x gravity
+  buoyancy (Boussinesq)   [body]             0.47 Pa      0.01 x gravity
+
+  arc pressure peak P_arc = mu0 I^2/(8 pi sigma_p^2) = 227.8 Pa
+  external field at 20 mT: J*B_ext*L = 645 Pa (8.3 x gravity)
+
+4. WHEN DOES AN EXTERNAL FIELD MATTER?
+--------------------------------------
+  External Lorentz density = |J| * B_ext , with |J| set by the welding current.
+    matches gravity                    at B_ext =    2.42 mT
+    matches the arc's own self-field   at B_ext =   13.50 mT
+    matches Marangoni                  at B_ext =    0.48 mT
+    matches arc pressure               at B_ext =    7.07 mT
+
+5. DIMENSIONLESS NUMBERS AT WAAM SCALE
+--------------------------------------
+  L = 3 mm , U = 0.3 m/s , sigma_e = 3.65e+06 S/m , mu = 1.25e-03 Pa.s
+
+    B (mT)       Ha          N        Re         Rm   regime
+         5     0.81     0.0003      1908   4.13e-03   no significant magnetic effect
+        10     1.62     0.0014      1908   4.13e-03   Hartmann layers form; bulk largely unchanged
+        20     3.24     0.0055      1908   4.13e-03   Hartmann layers form; bulk largely unchanged
+        50     8.11     0.0344      1908   4.13e-03   Hartmann layers form; bulk largely unchanged
+       100    16.21     0.1377      1908   4.13e-03   Hartmann layers form; bulk largely unchanged
+       150    24.32     0.3099      1908   4.13e-03   Hartmann layers form; bulk largely unchanged
+       270    43.77     1.0041      1908   4.13e-03   bulk flow magnetically dominated
+       500    81.06     3.4434      1908   4.13e-03   bulk flow magnetically dominated
+
+  Ha = 1  at B =   6.17 mT
+  N  = 1  at B =  269.4 mT   <-- order-unity BULK braking threshold
+  Rm = 4.13e-03  << 1 : induced field negligible, quasi-static OK
+
+6. CONSEQUENCE OF THE TUTORIAL'S sigma_e = 1e6 S/m
+--------------------------------------------------
+  true liquid Al-5Mg sigma_e / tutorial sigma_e = 3.65
+    J x B  scales as sigma      -> understated by 3.65 x
+    Ha     scales as sqrt(sigma)-> understated by 1.91 x
+    N      scales as sigma      -> understated by 3.65 x
+  Phase 1's Plate2D null was measured on a melt 3.6x less conductive than real.
+
+7. JOULE HEATING vs ARC HEATING
+-------------------------------
+  q_joule = |J|^2/sigma_e   = 3.162e+07 W/m3
+  pool volume ~ 1.13e-07 m3  ->  3.58 W
+  arc into pool                 =  1512 W
+  ratio = 0.237 %   -> negligible, but now quantified with a real sigma_e
+
+8. STIRRING vs BRAKING -- the physics that justifies current injection
+----------------------------------------------------------------------
+  Two completely different couplings share the name 'Lorentz force':
+
+    STIRRING   F = J_weld x B_ext        J from the ARC (135 A, injected)
+               linear in B, DRIVES flow, needs a current source
+
+    BRAKING    F = sigma(u x B) x B      J from MOTION only
+               quadratic in B, DAMPS flow, needs no current source
+
+  MTHD as shipped has only the second. laserbeamFoam is a LASER code: there is
+  no welding current to inject, so J = curl(H) is purely motional.
+
+    B (mT)   stir (Pa)  brake (Pa)  stir/brake
+         5       161.1       0.082        1962
+        10       322.3       0.329         981
+        20       644.6       1.314         491
+        50      1611.4       8.213         196
+       100      3222.9      32.850          98
+       270      8701.8     239.477          36
+       500     16114.4     821.250          20
+
+  At 20-50 mT -- the range the experimental literature actually uses --
+  the current-driven term is 200-500x the motional term. They cross only
+  at B = 9.8 T, an order of magnitude past any laboratory magnet.
+
+9. WHAT THIS SAYS ABOUT PHASE 1
+-------------------------------
+  Plate2D as run (sigma=1e6)   Ha =  0.28   N = 7.55e-04
+  Plate2D at true sigma        Ha =  0.54   N = 2.75e-03
+
+  N ~ 1e-4. With no current injection, Plate2D at 20 mT sits four orders of
+  magnitude below the braking threshold. The Phase 1 'no resolved velocity
+  effect' was not a resolution failure -- it is the physically correct answer
+  for that configuration. Re-running it at the true sigma_e would not change
+  the verdict, because sigma buys only 3.65x against a 1e4 shortfall.
+
+  That reframes Gate B: it proved the MACHINERY works. It could never have
+  shown a magnetic effect on the melt, and no field strength would have made
+  it. The effect requires the welding current -- which is Phase 6.
