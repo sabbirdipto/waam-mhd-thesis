@@ -1,0 +1,7 @@
+upstream:    https://github.com/laserbeamfoam/LaserbeamFoam
+archive:     https://github.com/sabbirdipto/LaserbeamFoam  (branch waam-mhd)
+base commit: 7578023ce1b33f9ad7a11f0c4f82b66ce0a6621f
+vendored on: 2026-09-04
+our commits:
+  a2481960  2026-09-03  Goldak double-ellipsoid arc heat source
+  2a75ee88  2026-09-02  Two-branch metal thermal conductivity

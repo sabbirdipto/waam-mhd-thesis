@@ -31,7 +31,6 @@ runs/output/
 *.tar
 *.tar.gz
 core.*
-src/lbf-com/
 *:Zone.Identifier
 
 # distilled evidence IS tracked (small summaries, checker output)
