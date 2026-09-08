@@ -362,7 +362,8 @@ volScalarField cp
         IOobject::AUTO_WRITE//change to no write when working
     ),
     mesh,
-    dimensionedScalar("cp", dimensionSet(0, 2, -2, -1, 0), 0.0)
+    dimensionedScalar("cp", dimensionSet(0, 2, -2, -1, 0), 0.0),
+    zeroGradientFvPatchScalarField::typeName
 );
 
 volScalarField kappa
@@ -376,7 +377,8 @@ volScalarField kappa
         IOobject::AUTO_WRITE//change to no write when working
     ),
     mesh,
-    dimensionedScalar("kappa",dimensionSet(1, 1, -3, -1, 0),0.0)
+    dimensionedScalar("kappa",dimensionSet(1, 1, -3, -1, 0),0.0),
+    zeroGradientFvPatchScalarField::typeName
 );
 
 #include "updateKappaCp.H"
