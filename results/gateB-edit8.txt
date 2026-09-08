@@ -1,0 +1,14 @@
+
+Plate2D-mhd-preEdit8   (t = 0.01, 1 write(s))
+  melt volume (cells) :    1865.0        <-- tightest floor, ~0.5%
+  mean|U| in metal    :    0.0462 m/s   <-- USE THIS for velocity, ~2.6%
+  max|U| in metal     :    3.5437 m/s
+  alpha-weighted mean :    0.0453 m/s   (includes noisy interface cells)
+  max|U| whole domain :    9.1693 m/s   (often in GAS -- unreliable)
+
+Plate2D-mhd   (t = 0.01, 1 write(s))
+  melt volume (cells) :    1869.0        <-- tightest floor, ~0.5%
+  mean|U| in metal    :    0.0504 m/s   <-- USE THIS for velocity, ~2.6%
+  max|U| in metal     :    3.4135 m/s
+  alpha-weighted mean :    0.0552 m/s   (includes noisy interface cells)
+  max|U| whole domain :   12.7787 m/s   (often in GAS -- unreliable)
