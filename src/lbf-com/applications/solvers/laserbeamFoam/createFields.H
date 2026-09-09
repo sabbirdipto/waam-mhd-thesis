@@ -319,6 +319,79 @@ else
     Info<< "Arc: none (no goldak_af_m in caseParameters)" << endl;
 }
 
+// ---------------------------------------------------------------- Edit 4
+// Droplet deposition. Enabled by the PRESENCE of droplet_radius_m, the same
+// convention the arc uses -- a case without these keys behaves exactly as it
+// did before this patch existed.
+const bool dropOn = arcDict.found("droplet_radius_m");
+
+scalar dropR_ = 0.0, dropV_ = 0.0, dropT_ = 0.0, dropGap_ = 0.0,
+       dropVdot_ = 0.0, dropVdrop_ = 0.0, dropMass_ = 0.0, dropTau_ = 0.0,
+       dropOwed_ = 0.0, dropImpactEnd_ = -1.0,
+       dropXc_ = 0.0, dropYc_ = 0.0, dropZc_ = 0.0;
+label dropNum_ = 0;
+
+if (dropOn)
+{
+    dropR_    = readScalar(arcDict.lookup("droplet_radius_m"));
+    dropV_    = readScalar(arcDict.lookup("droplet_v_impact_m_s"));
+    dropT_    = readScalar(arcDict.lookup("droplet_T_K"));
+    dropVdot_ = readScalar(arcDict.lookup("wire_volume_rate_m3_s"));
+    dropGap_  = arcDict.lookupOrDefault<scalar>("droplet_standoff_m", 5e-4);
+
+    // A half domain receives half the wire, exactly as it receives half the
+    // arc. arcSym_ is already 0.5 or 1.0 from the block above.
+    dropVdot_ *= arcSym_;
+
+    dropVdrop_ = (4.0/3.0)*M_PI*dropR_*dropR_*dropR_*arcSym_;
+    dropMass_  = dropVdrop_*rho1.value();
+
+    // Impact duration: the time to pass one diameter at the impact speed.
+    dropTau_ = (dropV_ > SMALL) ? 2.0*dropR_/dropV_ : 0.0;
+
+    Info<< "Droplet: spheres, Zhao Eq. 30" << nl
+        << "     r=" << dropR_*1e3 << "mm  v_impact=" << dropV_ << " m/s"
+        << "  T=" << dropT_ << " K" << nl
+        << "     volume rate " << dropVdot_ << " m3/s"
+        << "  -> " << dropVdot_*rho1.value()*1e3 << " g/s"
+        << "  -> " << dropVdot_/dropVdrop_ << " Hz" << nl
+        << "     droplet " << dropVdrop_*1e9 << " mm^3, "
+        << dropMass_*1e6 << " mg"
+        << "  impact " << dropTau_*1e3 << " ms"
+        << "  duty " << 100.0*dropTau_*dropVdot_/dropVdrop_ << "%" << nl
+        // TWO forces, because quoting one invites the wrong comparison. The
+        // time-averaged m_dot*v is what balances against gravity and the
+        // Lorentz force; the peak is what acts during the 7.4% of the time a
+        // droplet is actually landing, and it is 13.6x larger.
+        << "     force  peak " << dropMass_*dropV_/dropTau_ << " N"
+        << "   time-averaged " << dropVdot_*rho1.value()*dropV_ << " N" << nl
+        << "     standoff " << dropGap_*1e3 << " mm above the free surface"
+        << endl;
+}
+else
+{
+    Info<< "Droplet: none (no droplet_radius_m in caseParameters)" << endl;
+}
+
+// Momentum source, added to UEqn beside Marangoni and JcrossB. zeroGradient
+// boundaries and not the default 'calculated', which Edit 8 established are
+// initialised to zero and never evaluated.
+volVectorField dropletForce
+(
+    IOobject
+    (
+        "dropletForce",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedVector("zero", dimForce/dimVolume, Zero),
+    zeroGradientFvPatchVectorField::typeName
+);
+
+
 volScalarField arcSource
 (
     IOobject

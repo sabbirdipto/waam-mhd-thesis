@@ -67,6 +67,7 @@ fvVectorMatrix UEqn
   + fvm::Sp(DC, U)
   - Marangoni*damper
   - JcrossB*damper
+  - dropletForce*damper
  ==
     fvOptions(rho, U)
 );

@@ -138,6 +138,12 @@ int main(int argc, char *argv[])
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
+        // Droplet injection -- Edit 4. MUST be here, outside the PIMPLE loop:
+        // alphaEqnSubCycle.H resets alpha1 to alpha1.prevIter() on every outer
+        // iteration after the first, so an injection inside the loop is
+        // silently discarded on iterations 2 and beyond.
+        #include "updateDropletSource.H"
+
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
