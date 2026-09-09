@@ -1,0 +1,27 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  waam-arc-01 -- built by make_waam_case.py. Concrete values, no tokens.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      caseParameters;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Read by createFields.H with READ_IF_PRESENT. The presence of goldak_af_m
+// is what switches the arc on; without this file arcSource stays identically
+// zero and the run is bit-identical to stock laserbeamFoam.
+
+arc_power_W       1512.0;      // eta * U * I = 0.7 * 16.0 * 135.0
+goldak_af_m       0.003;             // forward semi-axis, narrow
+goldak_ar_m       0.006;             // rear semi-axis, wide (torch is moving)
+goldak_b_m        0.004;             // half width, y
+goldak_c_m        0.004;             // depth, z -- HALF ellipsoid below surface
+travel_speed_m_s  0.02;
+arc_x0_m          0;                // torch start
+arc_y0_m          0;                // on the symmetry plane
+arc_z0_m          0;                // substrate top surface
+sym               half;            // half domain -> target 756.0 W

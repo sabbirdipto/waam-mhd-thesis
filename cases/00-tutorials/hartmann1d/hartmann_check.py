@@ -82,19 +82,110 @@ def main():
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("csv", type=Path)
-    p.add_argument("--sigma", type=float, default=1.0)
-    p.add_argument("--mu", type=float, default=1.0)
+    p.add_argument("--sigma", type=float, default=None,
+                   help="electrical conductivity. Default: read from the case")
+    p.add_argument("--mu", type=float, default=None,
+                   help="dynamic viscosity rho*nu. Default: read from the case")
     p.add_argument("--B", type=float, default=None,
                    help="applied flux density. Default: computed as mu_mag*H from "
                         "the sampled H column -- far stricter than fitting")
-    p.add_argument("--mu-mag", type=float, default=1.0, dest="mumag",
-                   help="magnetic permeability, to turn sampled H into B (default 1)")
+    p.add_argument("--mu-mag", type=float, default=None, dest="mumag",
+                   help="magnetic permeability, to turn sampled H into B. "
+                        "Default: read from the case")
     p.add_argument("--L", type=float, default=None,
                    help="channel half-width (wall position). Default: inferred as "
                         "half-span of cell centres PLUS half a cell, which is the "
                         "true wall on a uniform mesh")
     p.add_argument("--plot", action="store_true")
     args = p.parse_args()
+
+    # ------------------------------------------------------------------
+    # Resolve material properties FROM THE CASE. Assuming unity turned a
+    # passing benchmark (1.3869e-02) into a 63% FAIL, because hartmann1d
+    # hides elec_conductivity_air_ = 1000 behind an #include.
+    # ------------------------------------------------------------------
+    def _scalars(path):
+        """Every 'key value;' pair in a foam dict. Comments stripped."""
+        out = {}
+        if not path.exists():
+            return out
+        for raw in path.read_text().splitlines():
+            line = raw.split("//")[0].strip()
+            if not line.endswith(";"):
+                continue
+            bits = line[:-1].split()
+            if len(bits) == 2:
+                try:
+                    out[bits[0]] = float(bits[1])
+                except ValueError:
+                    pass
+        return out
+
+    def _all_values(path, key):
+        """Every value assigned to `key`, so disagreement can be detected."""
+        vals = []
+        if not path.exists():
+            return vals
+        for raw in path.read_text().splitlines():
+            line = raw.split("//")[0].strip()
+            if not line.endswith(";"):
+                continue
+            bits = line[:-1].split()
+            if len(bits) == 2 and bits[0] == key:
+                try:
+                    vals.append(float(bits[1]))
+                except ValueError:
+                    pass
+        return vals
+
+    case = args.csv.resolve().parent
+    for _ in range(6):
+        if (case / "constant").is_dir():
+            break
+        case = case.parent
+    else:
+        case = None
+
+    src = {}
+    if case is not None:
+        ref = _scalars(case / "constant" / "propertiesReference")
+        tp = case / "constant" / "transportProperties"
+
+        if args.sigma is None and "elec_conductivity_air_" in ref:
+            args.sigma = ref["elec_conductivity_air_"]
+            src["sigma"] = "constant/propertiesReference"
+        if args.mumag is None and "magnetic_permeability_air_" in ref:
+            args.mumag = ref["magnetic_permeability_air_"]
+            src["mu_mag"] = "constant/propertiesReference"
+
+        if args.mu is None:
+            nus, rhos = _all_values(tp, "nu"), _all_values(tp, "rho")
+            if nus and rhos and len(set(nus)) == 1 and len(set(rhos)) == 1:
+                args.mu = rhos[0] * nus[0]
+                src["mu"] = "constant/transportProperties (rho*nu)"
+            elif nus and rhos:
+                sys.exit(
+                    "ERROR: the phases in constant/transportProperties disagree "
+                    f"(nu={sorted(set(nus))}, rho={sorted(set(rhos))}).\n"
+                    "  Which phase is flowing is not something this script will "
+                    "guess -- in hartmann1d 'metal' is marked \"Unused Phase\".\n"
+                    "  Pass --mu explicitly.")
+
+    missing = [n for n, v in (("--sigma", args.sigma), ("--mu", args.mu)) if v is None]
+    if missing:
+        sys.exit(
+            f"ERROR: could not determine {', '.join(missing)} from the case"
+            + (f" at {case}" if case else " (no constant/ directory found)")
+            + ".\n  Refusing to assume 1: doing so scores a passing Hartmann "
+              "benchmark\n  as a 63% FAIL. Pass the value(s) explicitly.")
+    if args.mumag is None:
+        args.mumag = 1.0
+        src["mu_mag"] = "assumed 1 (not found in the case)"
+
+    for name, val in (("sigma", args.sigma), ("mu", args.mu),
+                      ("mu_mag", args.mumag)):
+        print(f"  {name:<16} : {val:<12g} [{src.get(name, 'given on command line')}]")
+
 
     data = read_profile(args.csv)
     ys = [d[0] for d in data]

@@ -1,0 +1,53 @@
+#!/bin/sh
+cd "${0%/*}" || exit 1
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# The fields are written to initial/, not 0/, so that a re-run always starts
+# from a pristine copy instead of from whatever the last run left behind.
+# THIS COPY IS NOT OPTIONAL AND NOT COSMETIC. Without it:
+#   setFields  warns "Field alpha.metal not found" and does nothing, so the
+#              whole domain stays argon and the arc finds no metal to heat
+#   postProcess falls back to writing into constant/ instead of 0/, and
+#              pool_stats_waam.py -- which only looks in time directories --
+#              then reports no mesh at all
+# Both failures are warnings, not errors, so the case runs and produces
+# confident nonsense. Use this script rather than typing the steps by hand.
+# REFUSE BEFORE DESTROYING. runApplication skips any stage whose log already
+# exists, so on a second invocation the stages below all decline -- but the
+# rm above them had already deleted 0/ and the processor directories. The
+# case was left wiped AND unrun, which is the worst of both. Check first.
+if ls log.* >/dev/null 2>&1; then
+    echo "ERROR: this case has already been run -- log.* files are present."
+    echo "  NOTHING HAS BEEN TOUCHED."
+    echo
+    echo "  To re-run it from scratch (deletes 0/, processor*/, log.* and"
+    echo "  every time directory):"
+    echo "      ./Allrun -f"
+    echo
+    echo "  To keep this run, copy the case aside first."
+    exit 1
+fi
+
+if [ "$1" = "-f" ]; then
+    echo "Cleaning: time directories, processor*, 0/ and logs"
+    foamListTimes -rm > /dev/null 2>&1
+    rm -rf 0 processor* log.*
+fi
+
+echo "Copying 'initial' to 0"
+rm -rf 0 processor*
+cp -r initial 0
+
+runApplication blockMesh
+runApplication setFields
+runApplication decomposePar
+runParallel laserbeamFoam
+runApplication reconstructPar
+
+# Cell centres and volumes LAST. writeCellCentres also writes a field called
+# 'C', and C is the mesh cell-centre symbol in OpenFOAM; putting it into 0/
+# before decomposePar means decomposing a field with a reserved name. The
+# reference run generated these after the solve and is proven, so keep that
+# order. They describe the mesh, so once per mesh is enough.
+runApplication -s cellCentres postProcess -func writeCellCentres -time 0
+runApplication -s cellVolumes postProcess -func writeCellVolumes -time 0
