@@ -35,3 +35,40 @@ core.*
 
 # distilled evidence IS tracked (small summaries, checker output)
 !results/
+
+# --- OpenFOAM case output (added when droplet runs began) ------------
+# Allrun regenerates all of this from initial/, constant/, system/.
+# NOTE: the obvious pattern [0-9]*/ would also match cases/00-tutorials/
+# and silently ignore the whole case tree. These match only real numbers.
+0/
+[0-9].[0-9]*/
+[0-9][0-9].[0-9]*/
+[0-9]e-[0-9]*/
+[0-9].[0-9]*e-[0-9]*/
+processor*/
+**/constant/polyMesh/
+postProcessing/
+log.*
+logs/
+*.foam
+*.OpenFOAM
+
+# generated tables inside case dirs; curated ones go in results/
+cases/**/stats.*
+cases/**/mass.*
+
+# backups written by tools/patch_*.py
+*.dbak
+*.kbak
+*.hbak
+*.bak
+*.orig
+
+# build artefacts
+**/Make/linux*/
+**/lnInclude/
+*.o
+*.so
+*.dep
+__pycache__/
+*.pyc
