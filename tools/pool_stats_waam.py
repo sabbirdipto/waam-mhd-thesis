@@ -29,16 +29,30 @@ WHAT IT REPORTS, per written time
     T metal   hottest metal cell. THIS is the runaway gate.
     T gas     hottest argon cell. Expected to exceed T metal near a droplet;
               it is the plume, not the pool.
-    mean T    volume-weighted over the metal, so coarse far-field cells do
-              not dominate.
+              ('mean T' was dropped in rev 4 to make room. It measured the
+              volume-weighted metal temperature, which over this domain is
+              dominated by the cold bulk -- it moved 300.3 -> 323.1 K across
+              the entire 0.5 s run -- and it says the same thing as 'E kept'
+              in less interpretable units.)
     bottom    hottest cell on the substrate underside. While this sits at
               300 K the adiabatic bottom wall is free. Once it climbs, the
               missing convective/radiative condition (Zhao Eq. 29, h = 80)
               starts to matter, because heat that should be leaving is not.
-    far       hottest cell in the OUTERMOST y layer, against farField. The
-              domain-independence readout: while it stays at 300 K the far
-              boundary condition cannot matter, because there is no gradient
-              there for it to act on.
+    far met   hottest METAL cell in the outermost y layer, against farField.
+              THIS is the domain-independence readout: while it stays at
+              300 K the far boundary condition cannot matter, because there
+              is no gradient there for it to act on.
+    far gas   hottest ARGON cell in the same layer. Split out in rev 4 after
+              the 0.5 s run, where the single combined column jumped from
+              300.0 to 321.4 at t = 0.12 and then wandered 308 -> 311 -> 347
+              -> 374 -> 426 -> 415. Conduction into a far boundary is smooth
+              and monotonic; that trace is not conduction, it is the argon
+              plume being blown 25 mm sideways at 4-10 m/s and arriving as
+              hot gas. Reading it as a metal temperature would retire the
+              domain-independence claim on the strength of the shielding
+              gas. It is still a real signal -- hot argon piling against a
+              wall it cannot leave through drives spurious buoyancy -- but
+              it is a gas-domain question, not a substrate one.
     pool      cells above the SOLIDUS, and their real volume and depth.
     U metal   max |U| in the metal. Zero whenever nothing is molten -- the
               Darcy source drives velocity to machine zero in solid cells,
@@ -220,8 +234,8 @@ def main():
     bottom_cells = [c for c in range(n) if C[c][2] < zmin + 1e-9]
     far_cells    = [c for c in range(n) if C[c][1] > ymax - 1e-9]
 
-    hdr = (f"  {'time':>7}  {'T metal':>8}  {'T gas':>8}  {'mean T':>8}  "
-           f"{'bottom':>8}  {'far':>8}  {'pool':>6}  {'volume':>8}  {'depth':>6}  "
+    hdr = (f"  {'time':>7}  {'T metal':>8}  {'T gas':>8}  {'bottom':>8}  "
+           f"{'far met':>8}  {'far gas':>8}  {'pool':>6}  {'volume':>8}  {'depth':>6}  "
            f"{'U metal':>7}  {'U gas':>7}  {'E kept':>7}")
     print(hdr)
     print(f"  {'s':>7}  {'K':>8}  {'K':>8}  {'K':>8}  "
@@ -245,14 +259,16 @@ def main():
         vol = sum(V[c] for c in molten)*1e9
         depth = -min(C[c][2] for c in molten)*1e3 if molten else 0.0
 
-        # volume-weighted, so coarse far-field cells do not dominate the mean
-        Vm = sum(V[c] for c in metal)
-        meanT = T0 + sum((T[c] - T0)*V[c] for c in metal)/Vm
         Ein = RHO*CP*sum((T[c] - T0)*V[c] for c in metal)
         frac = 100.0*Ein/(ARC_W*t) if t > 0 else float("nan")
 
+        # 'bottom' needs no phase split: the plate underside at z = zmin is
+        # entirely substrate, so every cell in that layer is metal already.
+        # The far-y layer is NOT -- it spans the full z range, so most of it
+        # is argon, and the argon there is downstream of the plume.
         botT = max((T[c] for c in bottom_cells), default=float("nan"))
-        farT = max((T[c] for c in far_cells), default=float("nan"))
+        farM = max((T[c] for c in far_cells if a[c] > 0.5), default=float("nan"))
+        farG = max((T[c] for c in far_cells if a[c] <= 0.5), default=float("nan"))
 
         # Split EVERY extensive maximum by phase, not just velocity. Buoyant
         # argon over the arc is hotter and an order of magnitude faster than
@@ -269,7 +285,7 @@ def main():
                         for c in cells), default=0.0)
 
         print(f"  {d.name:>7}  {maxT_of(metal):8.1f}  {maxT_of(gas):8.1f}  "
-              f"{meanT:8.1f}  {botT:8.1f}  {farT:8.1f}  "
+              f"{botT:8.1f}  {farM:8.1f}  {farG:8.1f}  "
               f"{len(molten):6d}  {vol:8.2f}  {depth:6.2f}  "
               f"{umax_of(metal):7.4f}  {umax_of(gas):7.4f}  {frac:7.1f}")
 
@@ -291,7 +307,10 @@ def main():
                                    free. Once it climbs the missing Robin
                                    condition (h = 80) is holding in heat that
                                    should be leaving.
-    far = 300.0 .................. the domain is still big enough
+    far met = 300.0 .............. the domain is still big enough. This is
+                                   the gate; 'far gas' is not. Argon is
+                                   advected, so it reports where the plume
+                                   went, not how far heat has conducted.
 
   Al-5Mg solidus {TSOL:g} K, liquidus {TLIQ:g} K. 'Pool' is above the SOLIDUS,
   i.e. mushy plus fully liquid -- the region that is no longer solid.""")
