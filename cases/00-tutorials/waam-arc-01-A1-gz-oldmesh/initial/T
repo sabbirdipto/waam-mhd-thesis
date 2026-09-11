@@ -7,27 +7,26 @@ FoamFile
     format      ascii;
     class       volScalarField;
     location    "0";
-    object      alpha.metal;
+    object      T;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 0 0 0 0];
+dimensions      [0 0 0 1 0 0 0];
 
-internalField   uniform 0;
+internalField   uniform 300;
 
 boundaryField
 {
     inlet
     {
-        type            inletOutlet;
-        inletValue      uniform 0;
-        value           uniform 0;
+        type            fixedValue;
+        value           uniform 300;
     }
     outlet
     {
         type            inletOutlet;
-        inletValue      uniform 0;
-        value           uniform 0;
+        inletValue      uniform 300;
+        value           uniform 300;
     }
     substrateBottom
     {

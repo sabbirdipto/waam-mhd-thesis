@@ -12,48 +12,18 @@ FoamFile
     format          ascii;
     class           dictionary;
     location        "system";
-    object          controlDict;
+    object          decomposeParDict;
 }
 
-libs            ( "libthermoTools.so" );
+numberOfSubdomains 4;
 
-application     laserbeamFoam;
+method          scotch;
 
-startFrom       startTime;
-
-startTime       0;
-
-stopAt          endTime;
-
-endTime         0.46;
-
-deltaT          1e-05;
-
-writeControl    adjustableRunTime;
-
-writeInterval   0.02;
-
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  10;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   10;
-
-runTimeModifiable yes;
-
-adjustTimeStep  yes;
-
-maxCo           0.1;
-
-maxAlphaCo      0.1;
-
-maxDeltaT       4e-05;
+simpleCoeffs
+{
+    n               ( 2 2 1 );
+    delta           0.001;
+}
 
 
 // ************************************************************************* //

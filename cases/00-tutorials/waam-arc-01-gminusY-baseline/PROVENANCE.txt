@@ -1,0 +1,11 @@
+Pre-fix reference run. 0 to 0.1047666786 s.
+
+Produced with constant/g = (0 -9.81 0), inherited by make_waam_case.py from
+the Plate2D-mhd donor, a 2D x-y case with y vertical. This mesh is z-up and
+travel is +x, so gravity acted HORIZONTALLY across the domain in this run.
+
+Do not compare bead geometry from this run against Zhao Table 5. It is kept
+only as the "before" half of the gravity-direction comparison.
+
+Also note: decomposeParDict here was simple (4 1 1). Later runs use scotch,
+so results are not bit-comparable with this one.

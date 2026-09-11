@@ -7,11 +7,11 @@ FoamFile
     format      ascii;
     class       volScalarField;
     location    "0";
-    object      alpha.metal;
+    object      pH;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 0 0 0 0];
+dimensions      [2 2 -5 0 0 0 0];
 
 internalField   uniform 0;
 
@@ -19,14 +19,11 @@ boundaryField
 {
     inlet
     {
-        type            inletOutlet;
-        inletValue      uniform 0;
-        value           uniform 0;
+        type            zeroGradient;
     }
     outlet
     {
-        type            inletOutlet;
-        inletValue      uniform 0;
+        type            fixedValue;
         value           uniform 0;
     }
     substrateBottom

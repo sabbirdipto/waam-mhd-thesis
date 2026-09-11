@@ -21,12 +21,7 @@ goldak_ar_m       0.006;             // rear semi-axis, wide (torch is moving)
 goldak_b_m        0.004;             // half width, y
 goldak_c_m        0.004;             // depth, z -- HALF ellipsoid below surface
 travel_speed_m_s  0.02;
-arc_x0_m          -0.010;           // torch start. Domain is x[-15,+35]
-                                      // (50 mm, Zhao coupon); a 40 mm bead at
-                                      // 20 mm/s runs -10 -> +30, leaving 5 mm
-                                      // lead-in and 5 mm run-out as Zhao has.
-                                      // Was 0, which put arc-off at +40 mm --
-                                      // 5 mm PAST the plate edge.
+arc_x0_m          0;                // torch start
 arc_y0_m          0;                // on the symmetry plane
 arc_z0_m          0;                // substrate top surface
 sym               full;            // full domain -> target 1512 W

@@ -16,15 +16,7 @@ cd "${0%/*}" || exit 1
 # exists, so on a second invocation the stages below all decline -- but the
 # rm above them had already deleted 0/ and the processor directories. The
 # case was left wiped AND unrun, which is the worst of both. Check first.
-# -f FIRST. Previously the guard below ran first and rejected everything,
-# including the -f that exists to get past it, so the flag was unreachable.
-if [ "$1" = "-f" ]; then
-    echo "Cleaning: time directories, processor*, 0/ and logs"
-    foamListTimes -rm > /dev/null 2>&1
-    rm -rf 0 processor* log.*
-fi
-
-if ls log.* >/dev/null 2>&1; then
+if [ "$1" != "-f" ] && ls log.* >/dev/null 2>&1; then
     echo "ERROR: this case has already been run -- log.* files are present."
     echo "  NOTHING HAS BEEN TOUCHED."
     echo
@@ -34,6 +26,12 @@ if ls log.* >/dev/null 2>&1; then
     echo
     echo "  To keep this run, copy the case aside first."
     exit 1
+fi
+
+if [ "$1" = "-f" ]; then
+    echo "Cleaning: time directories, processor*, 0/ and logs"
+    foamListTimes -rm > /dev/null 2>&1
+    rm -rf 0 processor* log.*
 fi
 
 echo "Copying 'initial' to 0"
