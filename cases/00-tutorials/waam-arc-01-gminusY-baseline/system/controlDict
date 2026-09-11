@@ -12,18 +12,46 @@ FoamFile
     format          ascii;
     class           dictionary;
     location        "system";
-    object          decomposeParDict;
+    object          controlDict;
 }
 
-numberOfSubdomains 4;
+application     laserbeamFoam;
 
-method          scotch;
+startFrom       startTime;
 
-simpleCoeffs
-{
-    n               ( 2 2 1 );
-    delta           0.001;
-}
+startTime       0;
+
+stopAt          endTime;
+
+endTime         1.5;
+
+deltaT          1e-05;
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.02;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  10;
+
+writeCompression on;
+
+timeFormat      general;
+
+timePrecision   10;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.1;
+
+maxAlphaCo      0.1;
+
+maxDeltaT       1e-05;
 
 
 // ************************************************************************* //

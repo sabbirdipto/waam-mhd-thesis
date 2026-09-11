@@ -1,0 +1,49 @@
+  arc:  1512 W  [caseParameters, full domain]
+  mesh: 143,616 cells, geometry read from 0/  (cell volume 0.12 to 1.91 mm^3, ratio 16)
+  geometry check passed on all 143,616 cells
+
+     time   T metal     T gas    mean T    bottom       far    pool    volume   depth  U metal    U gas   E kept
+        s         K         K         K         K         K   cells      mm^3      mm      m/s      m/s        %
+  -----------------------------------------------------------------------------------------------------------
+    0.005     369.3     369.2     300.2     300.3     300.0       0      0.00    0.00   0.0000   0.0011    103.1
+     0.01     422.3     422.2     300.3     300.9     300.0       0      0.00    0.00   0.0000   0.0031    102.7
+    0.015     464.0     463.9     300.5     302.0     300.0       0      0.00    0.00   0.0000   0.0075    102.5
+     0.02     497.7     497.6     300.7     303.4     300.0       0      0.00    0.00   0.0000   0.0133    102.2
+    0.025     525.5     525.5     300.9     305.3     300.0       0      0.00    0.00   0.0000   0.0200    102.0
+     0.03     548.9     548.9     301.0     307.5     300.0       0      0.00    0.00   0.0000   0.0273    101.9
+    0.035    1504.1    1502.9     301.6     310.2     300.0      44      5.50   -0.25   1.4164   3.3691    133.0
+     0.04     872.5    1277.8     301.7     313.1     300.0      13      1.63    0.25   0.1095   1.1465    126.3
+    0.045     756.7     948.0     301.9     316.4     300.0       0      0.00    0.00   0.0000   0.7800    124.3
+     0.05     722.9     716.3     302.1     319.9     300.0       0      0.00    0.00   0.0000   0.7018    122.1
+    0.055     710.3     702.9     302.2     323.6     300.0       0      0.00    0.00   0.0000   0.6897    120.3
+     0.06     704.5     696.8     302.4     327.6     300.0       0      0.00    0.00   0.0000   0.6881    118.7
+    0.065     701.9     694.1     302.6     331.9     300.0       0      0.00    0.00   0.0000   0.6937    117.3
+     0.07    1341.3    1402.3     303.2     336.3     300.0      81     10.12    0.25   0.7145   2.7655    135.4
+    0.075     905.9     946.1     303.4     340.9     300.0      70      8.75    0.25   0.2984   2.1446    133.4
+     0.08     894.2     894.0     303.6     345.5     300.0      49      6.13    0.25   0.1101   1.9123    132.4
+    0.085     879.3     879.2     303.8     350.3     300.0      36      4.50    0.25   0.0243   1.8849    131.2
+     0.09     862.8     862.4     303.9     355.1     300.0      20      2.50    0.25   0.0019   1.8383    129.8
+    0.095     842.9     841.7     304.1     359.9     300.0      12      1.50    0.25   0.0005   1.8068    128.5
+      0.1    1505.9    1503.8     304.7     364.8     300.0      48      6.00    0.25   0.6015   4.3339    138.2
+
+  GATE:
+    T metal below ~1600 K ........ vaporisation is disabled, so a runaway has
+                                   no ceiling. Read the METAL column: T gas
+                                   legitimately spikes near a droplet.
+    pool volume > 0 AND CONTINUOUS  a pool that appears at each droplet and
+                                   vanishes between them is not a weld pool,
+                                   it is three separate solidification events.
+                                   Every row must be non-zero, not just some.
+    depth > 0.5 mm ............... more than one cell layer of the substrate
+                                   is fused. At exactly 0.25 mm the pool is
+                                   one cell deep and the number is the mesh
+                                   talking, not the physics.
+    depth < 6 mm ................. the pool has not reached the plate bottom
+    bottom near 300 K ............ while true, the adiabatic bottom wall is
+                                   free. Once it climbs the missing Robin
+                                   condition (h = 80) is holding in heat that
+                                   should be leaving.
+    far = 300.0 .................. the domain is still big enough
+
+  Al-5Mg solidus 815 K, liquidus 906 K. 'Pool' is above the SOLIDUS,
+  i.e. mushy plus fully liquid -- the region that is no longer solid.

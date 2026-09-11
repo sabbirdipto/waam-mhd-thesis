@@ -346,6 +346,34 @@ arc_z0_m          0;                // substrate top surface
 sym               {SYM};            // {SYM} domain -> target {ARC_POWER*(0.5 if SYM=="half" else 1.0):g} W
 {DROPLET_BLOCK}"""
 
+G_DICT = HEAD.format(cls="uniformDimensionedVectorField", loc="constant",
+                     obj="g") + """// WRITTEN, NOT COPIED, and that distinction is the point of this file.
+//
+// This was copied verbatim from the donor, and the donor is Plate2D-mhd: a
+// TWO-DIMENSIONAL x-y case in which y is vertical, so its g is (0 -9.81 0).
+//
+// This mesh is z-up and travel is +x. Everything else already agrees:
+//     setFieldsDict          fills z < 0 with metal, argon above
+//     caseParameters         arc_z0_m 0 is "substrate top surface"
+//     blockMeshDict          inlet is the z-max face, substrateBottom z-min
+//     updateArcSource.H      skips cells with (Cc.z() - arc_z0_) > 0
+//     updateDropletSource.H  applies the impact force along (0 0 -1)
+//
+// Copying the donor's g pointed gravity along -y, HORIZONTAL here. It reaches
+// the momentum equation through ghf*fvc::snGrad(rho*rhok) in UEqn.H, so the
+// failure was not a crash but a plausible-looking wrong answer: the crown
+// drifted off the centreline, Boussinesq buoyancy drove the argon plume 25 mm
+// sideways into farField instead of upward, and the deposit never spread
+// under its own weight.
+//
+// Re-meshed on a different vertical axis? Edit this. Do not make it a copy.
+
+dimensions      [0 1 -2 0 0 0 0];
+value           (0 0 -9.81);
+
+// ************************************************************* //
+"""
+
 LASER_OFF = HEAD.format(cls="dictionary", loc="constant",
                         obj="LaserProperties") + """// WAAM is heated by the arc, not a laser. The laser object is constructed
 // unconditionally by the solver, so this dictionary must exist -- but every
@@ -664,9 +692,16 @@ def main():
     (CASE / "constant" / "timeVsLaserPosition").write_text(
         "(\n(0    (0 0 1))\n(1000 (0 0 1))\n)\n")
 
+    # constant/g is WRITTEN, never copied: the donor is 2D and y-up, this mesh
+    # is z-up, and copying its g put gravity on a horizontal axis in every WAAM
+    # case this script built. Only geometry-FREE settings may be copied below.
+    (CASE / "constant" / "g").write_text(G_DICT)
+
     # --- proven settings: copied, never re-derived ---------------------------
+    # NOTHING GEOMETRY-DEPENDENT IN THIS TUPLE. Re-adding "constant/g" here is
+    # the specific mistake this comment exists to prevent.
     copied = []
-    for rel in ("constant/g", "constant/turbulenceProperties",
+    for rel in ("constant/turbulenceProperties",
                 "system/fvSchemes", "system/fvSolution"):
         src = DONOR / rel
         if not src.exists():
@@ -712,6 +747,7 @@ def main():
     print(f"    magnetic   electromagnetics {em}   ({how})")
     print(f"    constant/  transportProperties (sigma_e_gas = {SIGMA_E_GAS}), "
           f"caseParameters, laser OFF")
+    print(f"    gravity    (0 0 -9.81) written, NOT copied -- mesh is z-up")
     print(f"    copied     {', '.join(copied)}")
     print(f"    mesh       {ncells:,} cells  {dims[0]}x{dims[1]}x{dims[2]}  graded, {CELL*1e3:g} mm through the pool")
     print(f"    arc        {ARC_POWER:g} W, {SYM} domain "

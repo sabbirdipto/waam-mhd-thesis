@@ -11,19 +11,39 @@ FoamFile
     version         2;
     format          ascii;
     class           dictionary;
-    location        "system";
-    object          decomposeParDict;
+    location        "constant";
+    object          caseParameters;
 }
 
-numberOfSubdomains 4;
+arc_power_W     1512;
 
-method          scotch;
+goldak_af_m     0.003;
 
-simpleCoeffs
-{
-    n               ( 2 2 1 );
-    delta           0.001;
-}
+goldak_ar_m     0.006;
+
+goldak_b_m      0.004;
+
+goldak_c_m      0.004;
+
+travel_speed_m_s 0.02;
+
+arc_x0_m        -0.01;
+
+arc_y0_m        0;
+
+arc_z0_m        0;
+
+sym             full;
+
+droplet_radius_m 0.001105;
+
+droplet_v_impact_m_s 0.9;
+
+droplet_T_K     1506;
+
+wire_volume_rate_m3_s 1.69646e-07;
+
+droplet_standoff_m 0.0005;
 
 
 // ************************************************************************* //
