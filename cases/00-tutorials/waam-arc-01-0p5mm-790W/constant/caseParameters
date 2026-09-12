@@ -1,0 +1,47 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  waam-arc-01 -- built by make_waam_case.py. Concrete values, no tokens.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      caseParameters;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Read by createFields.H with READ_IF_PRESENT. The presence of goldak_af_m
+// is what switches the arc on; without this file arcSource stays identically
+// zero and the run is bit-identical to stock laserbeamFoam.
+
+arc_power_W       789.7;    // eta_1*U*I, NOT eta*U*I.
+                                    // Zhu [32] Eq. 8: eta_1 = eta - eta_2.
+                                    // eta_total 0.7 (Zhao Table 4),
+                                    // eta_2 0.334 (Zhu Eq. 9) is the share
+                                    // the droplets already carry in as mass at
+                                    // 1506 K. Was 1512 W, which
+                                    // put 103% of U*I into the workpiece.
+goldak_af_m       0.003;             // forward semi-axis, narrow
+goldak_ar_m       0.006;             // rear semi-axis, wide (torch is moving)
+goldak_b_m        0.004;             // half width, y
+goldak_c_m        0.004;             // depth, z -- HALF ellipsoid below surface
+travel_speed_m_s  0.02;
+arc_x0_m          -0.010;           // torch start. Domain is x[-15,+35]
+                                      // (50 mm, Zhao coupon); a 40 mm bead at
+                                      // 20 mm/s runs -10 -> +30, leaving 5 mm
+                                      // lead-in and 5 mm run-out as Zhao has.
+                                      // Was 0, which put arc-off at +40 mm --
+                                      // 5 mm PAST the plate edge.
+arc_y0_m          0;                // on the symmetry plane
+arc_z0_m          0;                // substrate top surface
+sym               full;            // full domain -> target 789.666 W
+
+// Droplets -- Edit 4. The PRESENCE of droplet_radius_m switches them on, the
+// same convention the arc uses. Delete these five lines and the case runs
+// arc-only, bit-comparably with everything before this edit.
+droplet_radius_m       0.001105;        // Zhao Eq. 30 from the wire feed
+droplet_v_impact_m_s   0.9;        // measured after separation, not fed
+droplet_T_K            1506.0;        // Zhao Table 3 velocity-inlet
+wire_volume_rate_m3_s  1.69646e-07;   // pi*(d/2)^2*Vw, halved by 'sym'
+droplet_standoff_m     0.0005;        // clear of existing metal

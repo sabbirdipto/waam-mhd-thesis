@@ -1,0 +1,33 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  waam-arc-01 -- built by make_waam_case.py. Concrete values, no tokens.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      setFieldsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Everything starts as argon; every cell below z = 0 becomes metal. The box is
+// deliberately larger than the domain in x and y so the substrate is complete.
+defaultFieldValues
+(
+    volScalarFieldValue alpha.metal 0
+);
+
+regions
+(
+    boxToCell
+    {
+        box (-1 -1 -1) (1 1 0);
+        fieldValues
+        (
+            volScalarFieldValue alpha.metal 1
+        );
+    }
+);
+
+// ************************************************************* //
