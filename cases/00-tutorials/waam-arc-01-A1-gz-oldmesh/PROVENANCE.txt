@@ -1,0 +1,18 @@
+1512 W arc, OLD 143,616-cell mesh, run 0 -> 0.5 s.  g = (0 0 -9.81).
+
+Mesh: x[-25,+35] y[-25,+25] z[-6,+6] mm, 88 x 68 x 24, EXPAND 4.0.
+That is 60 x 50 mm of plate 6 mm thick -- NOT Zhao's 50 x 30 x 4 mm coupon.
+The Stage 1 trim replaced it. T at the inlet is still fixedValue, i.e. before
+the two-way top boundary fix.
+
+This is the first run after the gravity axis was corrected, paired against
+waam-arc-01-gminusY-baseline which has g = (0 -9.81 0) on the same mesh.
+h_max/h_crown fell from 1.031 to ~1.003 in the solidified bead.
+
+*** WARNING: THE SAVED TEXT FILES DO NOT DESCRIBE THESE FIELDS ***
+  bead.0.88, bead.091, bead.last, bead.partial,
+  bead_profile_0.9161141176.csv, mass.*, stats.*
+were already sitting in waam-arc-01 when `cp -r` made this archive, and they
+came from EARLIER runs in that directory. bead_profile_0.9161141176.csv is a
+profile at t = 0.9161 s; the fields here stop at t = 0.5, so it cannot have
+been produced by this run. Treat every one of those files as unattributed.

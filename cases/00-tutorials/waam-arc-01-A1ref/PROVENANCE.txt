@@ -1,0 +1,25 @@
+1512 W arc, trimmed 88,200-cell mesh, run 0 -> 0.46 s.  FIELDS PRESENT.
+
+This is the 1512 W COUNTERPART to waam-arc-01-0p5mm-790W. Same mesh, same
+arc_x0_m = -0.010, same inletOutlet top boundary, same DECOMP (6,1,1).
+The only difference is arc_power_W. Use the pair for the heat-input comparison.
+
+arc_power_W 1512.0 = eta * U * I with eta = 0.70 taken as the POOL-ONLY
+efficiency. Zhu et al. (Int J Heat Mass Transf 126:1206-1221) Eq. 8 defines
+eta as the TOTAL: eta_1 = eta - eta_2, eta_2 = 0.334 for these parameters.
+With droplets separately entering as mass at 1506 K (722 W), this delivers
+2234 W against U*I = 2160 W -- 103%, impossible. Correct value is 790 W.
+
+MEASURED HERE (t = 0.46):
+  bottom     785.4 K, rising ~124 K/s, against an 815 K solidus
+  d sol      2.75 mm in a 4 mm plate
+  pool       continuous from t = 0.08
+  window     not yet developed; it opens at t > 0.4645
+
+The run was later continued to 0.6476 s in waam-arc-01, which gave
+bottom 810.1 K, d sol 3.25 mm, A 10.178 mm2 (+20% over the mass-conserved
+8.48), h crown 2.788 mm, w toe 5.315 mm. Those fields were deleted by
+make_waam_case.py --force; the numbers are in docs/open-issues-rev3.md.
+
+Do not compare its bead geometry against Zhao Table 5: the heat input is 48%
+too high.

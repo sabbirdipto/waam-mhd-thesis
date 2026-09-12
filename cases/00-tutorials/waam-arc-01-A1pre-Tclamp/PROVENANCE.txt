@@ -1,0 +1,16 @@
+1512 W arc, trimmed 88,200-cell mesh, run 0 -> 0.24 s.  SUPERSEDED, two faults.
+
+  1. arc_x0_m = 0, not -0.010. The generator's default was restored by a
+     --force rebuild after the value had been hand-set. A 40 mm bead from
+     x = 0 ends at +40 mm, but the plate ends at +35 -- arc-off falls 5 mm
+     OFF the workpiece. Deposit here runs x = -2.75 to +8.25 instead of the
+     intended -10 to +30.
+
+  2. T at the inlet is fixedValue 300 K, while U is
+     pressureInletOutletVelocity. The patch permits OUTFLOW, so a fixedValue
+     temperature clamps the outgoing buoyant plume to 300 K -- an artificial
+     heat sink that also suppresses the buoyancy driving it. Fixed afterwards
+     by switching T and alpha.metal to inletOutlet.
+
+Kept only as a record of the two faults. Nothing quantitative from this run
+should be used.
