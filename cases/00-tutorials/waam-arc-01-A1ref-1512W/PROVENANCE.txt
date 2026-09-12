@@ -1,0 +1,19 @@
+A1' CONFIGURATION, arc source 1512 W.  NO FIELD DATA -- dictionaries only.
+
+The run reached t = 0.66 s, but make_waam_case.py --force calls
+shutil.rmtree(CASE) and deleted the whole case directory before this copy was
+made. The numbers survive in RESULTS.txt; the fields do not. Re-runnable from
+these dictionaries in ~1.5 h if the fields are needed for a figure.
+
+WHY IT IS KEPT: this is the OVER-SUPPLIED heat case. arc_power_W was eta*U*I
+with eta = 0.70 taken as the pool-only efficiency. Droplets separately enter as
+mass at 1506 K carrying 722 W, so the workpiece received 2234 W against
+U*I = 2160 W -- 103%, impossible.
+
+Zhu et al., Int J Heat Mass Transf 126:1206-1221, Eqs. 8-9:
+    eta_1 = eta - eta_2,  eta is the TOTAL (0.60-0.85 for GMAW),
+    eta_2 = fraction absorbed by the droplets.
+Correct value: eta_1 = 0.70 - 0.334 = 0.366 -> 790 W.
+
+Do not compare its bead geometry against Zhao Table 5.
+Everything else matches the frozen configuration in docs/.

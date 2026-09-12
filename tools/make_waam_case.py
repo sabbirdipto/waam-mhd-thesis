@@ -41,8 +41,41 @@ MATS   = HOME / "thesis/materials/transportProperties"
 CASE   = HOME / "thesis/cases/00-tutorials/waam-arc-01"
 
 # --- arc, from caseMatrix.csv row R00-SPSL-paper --------------------------
-ARC_I, ARC_U, ETA = 135.0, 16.0, 0.70
-ARC_POWER = ETA * ARC_U * ARC_I          # 1512.0 W
+ARC_I, ARC_U = 135.0, 16.0
+ETA_TOTAL    = 0.70   # TOTAL arc efficiency, Zhao Table 4 [29].
+                      # Zhu [32] states 0.60-0.85 for GMAW, so 0.70 sits in
+                      # range AS A TOTAL. It is NOT the Goldak coefficient.
+
+# --- Goldak source power: eta_1 = eta - eta_2, Zhu [32] Eqs. 8 and 9 -------
+# Zhao Eq. 27 calls eta "the arc efficiency for heating molten pool, excluding
+# heating droplets ... described in detail in Ref. [32]" and then sets it to
+# 0.7. But Ref. [32] defines eta as the TOTAL:
+#     eta_1 = eta - eta_2                                              (Eq. 8)
+#     eta_2 = 4*pi*r_d^3*rho*[Cs(Ts-T0)+Cl(Td-Tl)+h_sl]*f_d / (3*U*I)  (Eq. 9)
+# "eta_1 is the arc efficiency for heating the molten pool. The TOTAL arc
+#  efficiency eta ranges from 0.60 to 0.85 for GMAW process"
+# "eta_2 represents the percentage of arc heat absorbed by the droplets"
+#
+# Using 0.7 as eta_1 double-counts: the droplets ALREADY carry their enthalpy
+# in as mass at 1506 K, so the workpiece received 1512 + 722 = 2234 W against
+# U*I = 2160 W. 103%. Impossible, and it is why A1' reached a 3.25 mm pool in
+# a 4 mm plate with 'bottom' at 810 K against an 815 K solidus, where Zhao
+# reports ~1 mm penetration.
+#
+# eta_2 is BOOKKEEPING, not an input. It records what the arc had to spend to
+# turn wire at T0 = 300 K into a 1506 K droplet. The reference is the WIRE, so
+# a hotter substrate does not change it; what slows as the plate heats is
+# conduction OUT of the pool, which the solution already captures.
+RHO_M   = 2650.0      # kg/m3, materials/transportProperties
+T_AMB   = 300.0       # K, Zhu T0
+T_SOL   = 815.0       # K, Mills [33]
+T_LIQ   = 906.0       # K, Mills [33]
+LATENT  = 3.58e5      # J/kg, Zhao Table 4
+CP_S    = 1050.0      # J/kgK, cp(T) averaged 300-815 K. cp is temperature
+CP_L    = 1180.0      # J/kgK, liquid.   dependent in transportProperties;
+                      # these are integral averages for Zhu Eq. 9 only and do
+                      # NOT feed the solver. +-10% on CP_S moves eta_2 by
+                      # about +-0.016, i.e. ~35 W on the Goldak source.
 AF, AR, BB, CC    = 0.003, 0.006, 0.004, 0.004
 TRAVEL            = 0.02                 # m/s  = 120 cm/min
 
@@ -371,6 +404,34 @@ FIELDS = {
 import math as _math
 WIRE_VDOT = _math.pi*(WIRE_D/2.0)**2*WIRE_V      # 1.696e-7 m3/s, full domain
 
+# --- eta_2 and the Goldak power, from Zhu Eq. 9 ---------------------------
+# Zhu writes the eta_2 numerator as droplet volume x frequency. There is no
+# frequency constant in this file because updateDropletSource.H accumulates
+# OWED VOLUME rather than firing on a clock -- so the mass rate IS the wire
+# feed, and mesh quantisation cannot bias it. Derive the implied frequency
+# and cross-check it against Zhao's 30 Hz rather than assuming.
+_DROP_VOL = 4.0/3.0*_math.pi*DROP_R**3
+_DROP_F   = WIRE_VDOT/_DROP_VOL                  # Hz; Zhao Eq. 30 gives 30
+if abs(_DROP_F - 30.0) > 1.0:
+    sys.exit(f"ERROR: implied droplet frequency {_DROP_F:.2f} Hz is not Zhao's "
+             f"30 Hz. Zhao Eq. 30 ties r_d to the wire feed; check DROP_R, "
+             f"WIRE_D, WIRE_V.")
+
+H_DROP    = CP_S*(T_SOL - T_AMB) + CP_L*(DROP_T - T_LIQ) + LATENT   # J/kg
+P_DROP    = WIRE_VDOT*RHO_M*H_DROP                                  # W
+ETA_2     = P_DROP/(ARC_U*ARC_I)
+ETA_1     = ETA_TOTAL - ETA_2
+if ETA_1 <= 0.0:
+    sys.exit(f"ERROR: eta_1 = eta - eta_2 = {ETA_TOTAL} - {ETA_2:.3f} = "
+             f"{ETA_1:.3f} <= 0. The droplets alone would exceed the total arc "
+             f"efficiency. Check DROP_T, WIRE_V or ETA_TOTAL.")
+ARC_POWER = ETA_1*ARC_U*ARC_I                                       # ~790 W
+
+print(f"  energy    U*I {ARC_U*ARC_I:.0f} W  ->  droplets (eta_2 {ETA_2:.3f}) "
+      f"{P_DROP:.0f} W as mass at {DROP_T:.0f} K")
+print(f"            arc source (eta_1 {ETA_1:.3f}) {ARC_POWER:.0f} W, "
+      f"unmodelled losses {(1-ETA_TOTAL)*ARC_U*ARC_I:.0f} W")
+
 DROPLET_BLOCK = f"""
 // Droplets -- Edit 4. The PRESENCE of droplet_radius_m switches them on, the
 // same convention the arc uses. Delete these five lines and the case runs
@@ -387,7 +448,13 @@ CASE_PARAMS = HEAD.format(cls="dictionary", loc="constant",
 // is what switches the arc on; without this file arcSource stays identically
 // zero and the run is bit-identical to stock laserbeamFoam.
 
-arc_power_W       {ARC_POWER};      // eta * U * I = {ETA} * {ARC_U} * {ARC_I}
+arc_power_W       {ARC_POWER:.1f};    // eta_1*U*I, NOT eta*U*I.
+                                    // Zhu [32] Eq. 8: eta_1 = eta - eta_2.
+                                    // eta_total {ETA_TOTAL} (Zhao Table 4),
+                                    // eta_2 {ETA_2:.3f} (Zhu Eq. 9) is the share
+                                    // the droplets already carry in as mass at
+                                    // {DROP_T:.0f} K. Was {ETA_TOTAL*ARC_U*ARC_I:.0f} W, which
+                                    // put 103% of U*I into the workpiece.
 goldak_af_m       {AF};             // forward semi-axis, narrow
 goldak_ar_m       {AR};             // rear semi-axis, wide (torch is moving)
 goldak_b_m        {BB};             // half width, y
@@ -696,6 +763,16 @@ def main():
     if CASE.exists():
         if not force:
             sys.exit(f"ERROR: {CASE} exists. Re-run with --force to replace it.")
+        # --force is MORE destructive than Allrun -f: that only clears 0/,
+        # processor*/, log.* and the time directories, while this removes the
+        # whole case. It has already eaten one completed run (A1' at 1512 W,
+        # archived after the rebuild, so the copy held dictionaries only).
+        if (CASE / "log.laserbeamFoam").exists():
+            sys.exit(f"REFUSING: {CASE} holds results (log.laserbeamFoam).\n"
+                     f"  --force calls shutil.rmtree on the WHOLE case.\n"
+                     f"  Copy it aside first:\n"
+                     f"      cp -r {CASE} {CASE}-archive\n"
+                     f"  then re-run with --force.")
         shutil.rmtree(CASE)
 
     (CASE / "initial").mkdir(parents=True)

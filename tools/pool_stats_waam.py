@@ -107,7 +107,38 @@ def _arc_power():
     return p*(0.5 if half else 1.0), f"caseParameters, {'half' if half else 'full'} domain"
 
 
+def _droplet_power():
+    """Enthalpy rate carried in by the droplets, W.
+
+    The droplets are injected as STATE -- updateDropletSource.H sets T to
+    droplet_T_K and epsilon1 to 1 -- so no power term appears in the energy
+    equation, but the enthalpy is real and it must be in the denominator of
+    'E kept' or the ratio is guaranteed to exceed 100%.
+
+    Referenced to T0 (wire at ambient), matching Zhu et al. Eq. 9:
+        h = Cs*(Tsol - T0) + Cl*(Tdrop - Tliq) + latent
+    Cs and Cl here are integral averages; they do NOT feed the solver, which
+    uses cp(T) from transportProperties. +-10% on Cs moves this by ~5%.
+    """
+    f = CASE / "constant" / "caseParameters"
+    if not f.exists():
+        return 0.0, "no caseParameters"
+    txt = f.read_text()
+    mv = re.search(r"^\s*wire_volume_rate_m3_s\s+([0-9eE+.-]+)\s*;", txt, re.M)
+    mt = re.search(r"^\s*droplet_T_K\s+([0-9eE+.-]+)\s*;", txt, re.M)
+    if not (mv and mt):
+        return 0.0, "no wire_volume_rate_m3_s / droplet_T_K"
+    vdot, Td = float(mv.group(1)), float(mt.group(1))
+    s = re.search(r"^\s*sym\s+(\w+)\s*;", txt, re.M)
+    if s and s.group(1) == "half":
+        vdot *= 0.5
+    CS, CL, LAT = 1050.0, 1180.0, 3.58e5
+    h = CS*(TSOL - T0) + CL*(Td - TLIQ) + LAT
+    return vdot*RHO*h, f"{vdot*RHO*1e3:.3f} g/s at {Td:g} K"
+
+
 ARC_W, ARC_SRC = _arc_power()
+DROP_W, DROP_SRC = _droplet_power()
 
 
 def slurp(path):
@@ -207,6 +238,9 @@ def main():
     C, V, where = find_mesh()
     n = len(V)
     print(f"  arc:  {ARC_W:g} W  [{ARC_SRC}]")
+    if DROP_W > 0:
+        print(f"  droplets: {DROP_W:.0f} W as mass  [{DROP_SRC}]"
+              f"   total in {ARC_W + DROP_W:.0f} W")
     print(f"  mesh: {n:,} cells, geometry read from {where}/  "
           f"(cell volume {min(V)*1e9:.3g} to {max(V)*1e9:.3g} mm^3, "
           f"ratio {max(V)/min(V):.0f})")
@@ -235,7 +269,7 @@ def main():
     far_cells    = [c for c in range(n) if C[c][1] > ymax - 1e-9]
 
     hdr = (f"  {'time':>7}  {'T metal':>8}  {'T gas':>8}  {'bottom':>8}  "
-           f"{'far met':>8}  {'far gas':>8}  {'pool':>6}  {'volume':>8}  {'depth':>6}  "
+           f"{'far met':>8}  {'far gas':>8}  {'pool':>6}  {'volume':>8}  {'d sol':>6}  {'d liq':>6}  "
            f"{'U metal':>7}  {'U gas':>7}  {'E kept':>7}")
     print(hdr)
     print(f"  {'s':>7}  {'K':>8}  {'K':>8}  {'K':>8}  "
@@ -255,12 +289,22 @@ def main():
         metal  = [c for c in range(n) if a[c] > 0.5]
         gas    = [c for c in range(n) if a[c] <= 0.5]
         molten = [c for c in metal if T[c] > TSOL]
+        # LIQUIDUS set, reported beside the solidus one. Zhao's Figs. 11 and 18
+        # colour up to 906 K, so the pool boundary visible in the paper is the
+        # fully liquid region. With a 91 K mushy interval the two depths differ
+        # substantially, and quoting the solidus depth against his figures
+        # overstates penetration.
+        liquid = [c for c in metal if T[c] > TLIQ]
 
         vol = sum(V[c] for c in molten)*1e9
         depth = -min(C[c][2] for c in molten)*1e3 if molten else 0.0
+        depthL = -min(C[c][2] for c in liquid)*1e3 if liquid else 0.0
 
         Ein = RHO*CP*sum((T[c] - T0)*V[c] for c in metal)
-        frac = 100.0*Ein/(ARC_W*t) if t > 0 else float("nan")
+        # Denominator is arc PLUS droplet enthalpy. Counting the arc alone
+        # put this at 119-133% at 1512 W and 150-164% at 790 W -- both exactly
+        # (arc+droplet)/arc, i.e. a bookkeeping artefact, not lost energy.
+        frac = 100.0*Ein/((ARC_W + DROP_W)*t) if t > 0 else float("nan")
 
         # 'bottom' needs no phase split: the plate underside at z = zmin is
         # entirely substrate, so every cell in that layer is metal already.
@@ -286,7 +330,7 @@ def main():
 
         print(f"  {d.name:>7}  {maxT_of(metal):8.1f}  {maxT_of(gas):8.1f}  "
               f"{botT:8.1f}  {farM:8.1f}  {farG:8.1f}  "
-              f"{len(molten):6d}  {vol:8.2f}  {depth:6.2f}  "
+              f"{len(molten):6d}  {vol:8.2f}  {depth:6.2f}  {depthL:6.2f}  "
               f"{umax_of(metal):7.4f}  {umax_of(gas):7.4f}  {frac:7.1f}")
 
     print(f"""
@@ -302,15 +346,33 @@ def main():
                                    is fused. At exactly 0.25 mm the pool is
                                    one cell deep and the number is the mesh
                                    talking, not the physics.
-    depth < 6 mm ................. the pool has not reached the plate bottom
-    bottom near 300 K ............ while true, the adiabatic bottom wall is
-                                   free. Once it climbs the missing Robin
-                                   condition (h = 80) is holding in heat that
-                                   should be leaving.
-    far met = 300.0 .............. the domain is still big enough. This is
-                                   the gate; 'far gas' is not. Argon is
-                                   advected, so it reports where the plume
-                                   went, not how far heat has conducted.
+    d liq vs d sol ............... 'd sol' is measured to the bottom of the
+                                   MUSHY zone (815 K up), 'd liq' to the
+                                   fully liquid boundary (906 K up). Zhao's
+                                   Figs. 11 and 18 colour to 906 K, so quote
+                                   'd liq' against his ~1 mm penetration.
+                                   Al-5Mg has a 91 K mushy interval, so the
+                                   two differ a lot -- do not mix them.
+    d sol < 4 mm ................. the mushy zone has not reached the plate
+                                   bottom. Plate is 4 mm (Zhao's coupon)
+                                   since the Stage 1 trim, NOT 6 mm.
+    bottom < 815 K ............... the underside must stay below the solidus
+                                   or the plate is melting through. It WILL
+                                   climb: Eq. 29 (h = 80) is live now but
+                                   removes only ~2% of the budget, and the
+                                   trimmed plate is 6,000 mm3 -- a third of
+                                   the old thermal mass. Watch for a plateau;
+                                   a linear climb means melt-through.
+    far met < 815 K .............. NO LONGER a domain-size gate. Since the
+                                   trim, farField is the PHYSICAL long edge of
+                                   Zhao's 50 x 30 x 4 mm coupon, 15 mm from
+                                   the bead, and it is EXPECTED to warm. The
+                                   gate is only that it stays well below the
+                                   solidus. 'far gas' is not a gate at all:
+                                   argon is advected, so it reports where the
+                                   plume went, not how far heat conducted --
+                                   and it moved with the trim, so it is not
+                                   comparable across mesh changes.
 
   Al-5Mg solidus {TSOL:g} K, liquidus {TLIQ:g} K. 'Pool' is above the SOLIDUS,
   i.e. mushy plus fully liquid -- the region that is no longer solid.""")

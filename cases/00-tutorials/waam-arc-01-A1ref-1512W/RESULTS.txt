@@ -1,0 +1,36 @@
+A1' at 1512 W -- key numbers, t = 0.66 s, 88,200-cell frozen configuration
+
+POOL / THERMAL (pool_stats_waam.py)
+  t      bottom    depth   far met   pool cells
+  0.20   657.2 K   1.25mm  300.8 K   210
+  0.30   723.6 K   1.75mm  305.2 K   399
+  0.40   763.4 K   2.25mm  314.2 K   562
+  0.46   785.4 K   2.75mm  321.5 K   639
+  0.58   796.2 K   2.75mm  338.7 K   714
+  0.62   803.8 K   3.25mm  344.9 K   740
+  0.66   810.1 K   3.25mm  351.2 K   822
+  -> depth growing ~2.9 mm/s in a 4 mm plate; bottom 4.9 K under the 815 K
+     solidus and rising ~124 K/s. Zhao reports ~1 mm penetration.
+
+BEAD (bead_profile.py), developed window x = -7.2 to -6.2 mm
+  t      A mm2   h crown  h max   w toe   w half  ripple
+  0.64   10.251  2.842    2.875   5.309   3.771   20.0%
+  0.66   10.178  2.788    2.825   5.315   3.791   17.8%
+  Zhao:   8.48   1.55 sim / 1.80 exp        ~8.2
+  peak A along the track 12.03 mm2 at x = -5.25 (+42% over 8.48)
+  near the arc  A 5.16 mm2 at x = -0.25 (-39%)  -> backward piling
+  integral A dx = 105.5 mm3 vs 112.0 expected (94%) -> mass IS conserved
+
+SYMMETRY (transverse, x = -7.25..-6.25)
+  |y|    h(-y)   h(+y)
+  0.25   2.770   2.805
+  0.75   2.622   2.583
+  1.25   2.172   2.145
+  1.75   1.733   1.631
+  sum   10.262  10.094   = -1.7%
+  centroid -16.9 um = 3.4% of one 500 um cell  -> SYMMETRIC.
+  Earlier: 1.062 with scotch, 1.031 with simple(4 1 1) and g = -y.
+
+NUMERICS
+  deltaT 2.44e-5 (Courant-limited), T solves 13.2/step by the end,
+  arc renormalisation 98.6%, E kept 119-133%

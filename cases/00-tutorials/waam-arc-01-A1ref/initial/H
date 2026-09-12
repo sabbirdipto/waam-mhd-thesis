@@ -1,0 +1,42 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  waam-arc-01 -- built by make_waam_case.py. Concrete values, no tokens.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      H;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 -1 0 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    outlet
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    substrateBottom
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    farField
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+}
+
+// ************************************************************* //
