@@ -1,0 +1,198 @@
+  mesh: 88,200 cells from 0/  (99 x-stations, 50 y-stations)
+  domain: full  ->  areas and widths x1   [constant/caseParameters]
+  developed window = [deposition start + 5 mm, pool trailing edge]
+
+  --- profile along the track at t = 1.9875696396 s ---
+
+         x        A   h crown    h max    w toe   w half      
+        mm     mm^2        mm       mm       mm       mm
+  -----------------------------------------------
+    -13.19    0.306     0.031    0.257    2.482    0.564
+    -12.66    0.548     0.432    0.433    2.229    1.130
+    -12.21    1.362     0.520    0.569    4.026    2.177
+    -11.75    0.824     0.089    0.423    4.408    0.783
+    -11.25    1.197     0.091    0.460    5.834    0.890
+    -10.75    2.168     0.227    0.860    5.662    0.865
+    -10.25    3.223     0.507    1.007    6.045    0.874
+     -9.75    4.881     0.777    1.010    6.359    5.593
+     -9.25    6.178     1.211    1.395    6.382    5.209
+     -8.75    7.107     1.734    1.944    6.083    4.021
+     -8.25    6.862     1.550    1.734    6.624    3.836
+     -7.75    5.595     1.477    1.488    5.894    3.929  <<
+     -7.25    6.160     1.826    1.903    6.108    2.947  <<
+     -6.75    7.098     1.952    2.016    7.303    2.898  <<
+     -6.25    7.406     2.269    2.462    5.923    2.629  <<
+     -5.75    7.624     2.141    2.256    6.468    3.106  <<
+     -5.25    7.957     2.179    2.301    6.498    3.049  <<
+     -4.75    7.976     2.164    2.218    6.457    3.146  <<
+     -4.25    8.157     2.405    2.430    5.839    2.918  <<
+     -3.75    8.850     2.501    2.512    7.692    2.918  <<
+     -3.25    9.405     2.585    2.639    7.249    2.966  <<
+     -2.75    9.158     2.541    2.543    6.881    3.086  <<
+     -2.25    8.886     2.586    2.628    5.357    3.060  <<
+     -1.75    9.241     2.744    2.938    6.160    2.832  <<
+     -1.25    9.015     2.423    2.508    6.102    3.150  <<
+     -0.75    8.706     2.274    2.293    6.374    3.237  <<
+     -0.25    8.122     2.108    2.139    6.510    3.222  <<
+      0.25    7.667     1.927    1.928    6.671    3.315  <<
+      0.75    6.470     1.754    1.793    7.047    3.106  <<
+      1.25    6.631     1.864    1.895    6.426    3.047  <<
+      1.75    6.549     1.890    1.917    5.543    3.209  <<
+      2.25    6.937     2.067    2.090    5.245    2.991  <<
+      2.75    7.136     2.198    2.314    5.427    2.691  <<
+      3.25    8.256     2.409    2.498    5.558    2.971  <<
+      3.75    8.276     2.479    2.521    5.282    2.972  <<
+      4.25    8.609     2.519    2.561    5.963    3.110  <<
+      4.75    9.462     2.587    2.605    6.368    3.251  <<
+      5.25    9.170     2.747    2.837    6.182    3.010  <<
+      5.75    9.626     2.817    2.965    6.490    2.970  <<
+      6.25    9.352     2.787    2.910    5.460    2.956  <<
+      6.75    9.371     2.723    2.806    5.354    3.028  <<
+      7.25    9.508     2.858    2.915    5.443    3.067  <<
+      7.75    9.656     2.870    2.977    5.523    3.144  <<
+      8.25    9.237     2.825    2.962    4.743    3.094  <<
+      8.75    9.425     2.755    2.806    6.005    3.188  <<
+      9.25    9.247     2.679    2.826    5.935    3.148  <<
+      9.75    8.701     2.524    2.527    4.948    3.203  <<
+     10.25    8.908     2.518    2.519    5.832    3.079  <<
+     10.75    8.900     2.655    2.776    5.861    2.935  <<
+     11.25    9.296     2.616    2.708    5.442    3.116  <<
+     11.75    8.782     2.560    2.564    5.213    3.090  <<
+     12.25    8.852     2.530    2.568    5.812    3.149  <<
+     12.75    8.715     2.493    2.509    5.477    3.207  <<
+     13.25    8.761     2.475    2.542    5.419    3.263  <<
+     13.75    8.499     2.449    2.556    5.652    3.150  <<
+     14.25    8.553     2.448    2.523    5.020    3.113  <<
+     14.75    8.659     2.450    2.518    6.552    3.074  <<
+     15.25    8.577     2.462    2.522    5.135    3.307  <<
+     15.75    7.703     2.300    2.362    5.092    3.049  <<
+     16.25    7.664     2.305    2.388    5.429    3.090  <<
+     16.75    7.786     2.267    2.412    5.003    3.001  <<
+     17.25    7.432     2.234    2.360    6.253    2.933  <<
+     17.75    7.337     2.268    2.270    5.490    2.999  <<
+     18.25    7.533     2.116    2.131    6.084    3.119  <<
+     18.75    8.228     2.047    2.071    7.138    3.457  <<
+     19.25    7.218     2.225    2.308    5.559    2.906  <<
+     19.75    7.340     2.119    2.154    5.470    3.061  <<
+     20.25    7.519     2.157    2.207    5.769    3.065  <<
+     20.75    7.534     2.096    2.116    6.844    3.109  <<
+     21.25    7.910     2.179    2.224    6.815    3.054  <<
+     21.75    7.623     2.173    2.220    6.659    3.122  <<
+     22.25    7.824     2.289    2.513    5.766    2.901  <<
+     22.75    7.862     2.353    2.522    5.601    2.885  <<
+     23.25    7.933     2.369    2.524    5.726    2.994  <<
+     23.75    8.630     2.396    2.526    5.964    3.109  <<
+     24.25    8.103     2.341    2.527    5.415    3.028  <<
+     24.75    8.386     2.381    2.528    5.563    2.983  <<
+     25.25    8.167     2.219    2.333    5.706    3.103
+     25.75    7.749     2.174    2.258    6.347    3.132
+     26.25    7.539     2.122    2.169    6.429    3.212
+     26.75    7.038     2.036    2.092    6.223    3.099
+     27.25    6.706     1.879    1.931    6.497    3.203
+     27.75    6.294     1.687    1.713    6.740    3.205
+     28.25    5.819     1.407    1.410    8.191    3.505
+     28.75    4.850     1.159    1.182    7.071    3.548
+     29.25    4.173     1.027    1.191    7.209    3.221
+     29.75    3.717     0.831    1.050    6.992    1.626
+     30.25    3.873     0.694    1.281    7.052    0.780
+     30.75    2.705     0.386    0.487    7.784    6.202
+     31.25    1.983     0.312    0.454    7.679    1.364
+     31.75    1.699     0.344    0.580    6.634    0.733
+     32.21    0.229     0.171    0.205    1.376    0.880
+     32.21    1.907     0.193    0.723    5.160    1.156
+     32.66    0.899     0.200    0.415    3.749    1.059
+     33.19    0.467     0.120    0.225    3.254    1.611
+
+  '<<' marks the developed window: solidified and past the start transient.
+  pool trailing edge at x = 24.75 mm; deposition starts at x = -13.19 mm
+
+  --- transverse section, averaged over x = -7.75 to 24.75 mm ---
+
+         y         h
+        mm        mm
+  ------------------
+    -12.71     0.002
+    -11.89     0.003
+    -11.10     0.004
+    -10.37     0.002
+     -9.67     0.002
+     -9.01     0.001
+     -8.39     0.001
+     -7.81     0.000
+     -7.25     0.000
+     -6.73     0.000
+     -6.24     0.001
+     -5.75     0.000
+     -5.25     0.001
+     -4.75     0.007
+     -4.25     0.048
+     -3.75     0.100
+     -3.25     0.252
+     -2.75     0.281
+     -2.25     0.453
+     -1.75     0.814
+     -1.25     1.675
+     -0.75     2.109
+     -0.25     2.354
+      0.25     2.365
+      0.75     2.136
+      1.25     1.731
+      1.75     0.869
+      2.25     0.439
+      2.75     0.333
+      3.25     0.199
+      3.75     0.173
+      4.25     0.020
+      4.75     0.008
+      5.25     0.001
+      5.75     0.000
+      7.25     0.000
+      7.81     0.000
+      8.39     0.001
+      9.01     0.002
+      9.67     0.002
+     10.37     0.006
+     11.10     0.008
+     11.89     0.008
+     12.71     0.006
+     13.59     0.000
+
+  HOW TO READ THIS
+
+  A         Deposited cross-section above z = 0, mm^2. Pure sum(alpha*V), so
+            it is conserved and can be checked against mass in independently:
+            once the bead is developed, A must equal the wire volume rate
+            divided by the travel speed. If A is right and 'h crown' is wrong,
+            the metal is all there and the FREE SURFACE SHAPE is wrong --
+            which is the arc-pressure hypothesis. If A itself is wrong, the
+            problem is upstream, in delivery.
+
+  h crown   Equivalent metal height on the centreline. This is the number to
+            put against Zhao 1.55 mm (simulated) and 1.80 mm (experimental).
+            It is an alpha-weighted column integral, not an alpha = 0.5
+            contour crossing, so a smeared interface does not inflate or
+            deflate it.
+
+  h max     Same quantity maximised over y. If this exceeds 'h crown' by more
+            than a few percent the crown is off-centre, which would be a
+            direct geometric consequence of the one-directional Marangoni
+            circulation already seen in the U_x profile.
+
+  w toe     Full width at 10% of peak height -- the model analogue of the
+            toe-to-toe width measured on a macrograph. Compare to Zhao 8.2 mm.
+  w half    Full width at half maximum, reported beside it so the choice of
+            width definition stays visible rather than being made silently.
+
+  ripple    Peak-to-peak spread of A(x) across the developed window, percent
+            of mean. Droplets land every 0.665 mm (v/f). A few percent is
+            discretisation. Tens of percent means the droplet periodicity is
+            surviving into the solidified bead -- humping, not flow -- and
+            that is a physical difference from Zhao's smooth bead, not a
+            post-processing artefact.
+
+  window    The x range that has BOTH solidified (behind the pool trailing
+            edge) AND cleared the start transient (more than 5 mm past
+            first deposition). Only this region is comparable to a
+            steady-state macrograph. 'not developed' on every row means the
+            run is too short for a geometry comparison to mean anything, and
+            no number quoted from it should enter the thesis.

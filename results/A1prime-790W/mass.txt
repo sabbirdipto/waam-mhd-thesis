@@ -1,0 +1,71 @@
+  substrate at t = 0: 6,000.0 mm^3  (measured, sum alpha*V)
+  nominal droplet: 5.652 mm^3  [caseParameters droplet_radius_m]
+
+      time  bead a>.5   bead aV    T bead  deposited   drops   T metal   >sol   >liq
+         s       mm^3      mm^3         K       mm^3                 K  cells  cells
+  ------------------------------------------------------------------------------
+      0.02       0.00      0.00       nan     -0.000   -0.00     410.2      0      0
+      0.04       4.16      5.50     857.3      5.500    0.97     857.3      8      0
+      0.06       4.16      5.48     490.7      5.478    0.97     570.0      0      0
+      0.08       9.91     11.21     853.9     11.208    1.98     853.9     12      0
+       0.1      15.41     16.71    1505.9     16.708    2.96    1505.9     44     44
+      0.12      14.86     16.68     790.7     16.680    2.95     790.7      0      0
+      0.14      18.86     21.90    1079.6     21.903    3.88    1079.6     49     20
+  0.1475696396      18.61     21.90     902.3     21.903    3.88     902.3     27      0
+  0.1675696396      18.86     21.90     733.5     21.903    3.88     733.5      0      0
+  0.1875696396      23.01     27.40     964.7     27.399    4.85     964.7     46      8
+  0.2075696396      23.01     27.40     728.9     27.399    4.85     728.9      0      0
+  0.2275696396      25.51     33.36     884.2     33.357    5.90     884.2     20      0
+  0.2475696396      25.63     33.35     710.1     33.354    5.90     712.2      0      0
+  0.2675696396      30.38     38.84     857.5     38.840    6.87     857.5     16      0
+  0.2875696396      37.53     44.30    1118.5     44.299    7.84    1118.5     88     38
+  0.3075696396      35.88     44.29     867.7     44.292    7.84     867.7     26      0
+  0.3275696396      41.78     50.23     955.2     50.233    8.89     955.2     82     17
+  0.3475696396      41.91     50.23     879.7     50.233    8.89     879.7     38      0
+  0.3675696396      47.26     55.72     912.2     55.716    9.86     912.2     90      3
+  0.3875696396      52.66     61.21    1117.9     61.208   10.83    1117.9    116     38
+  0.4075696396      53.28     61.21     890.3     61.208   10.83     890.3     71      0
+  0.4275696396      57.78     67.20     933.7     67.203   11.89     933.7    112     14
+  0.4475696396      57.53     67.20     882.4     67.203   11.89     882.4     60      0
+  0.4675696396      62.66     72.70     909.9     72.697   12.86     909.9     96      5
+  0.4875696396      68.16     78.19    1103.7     78.190   13.83    1103.7    133     49
+  0.5075696396      68.63     78.19     896.1     78.188   13.83     896.1    100      0
+  0.5275696396      74.13     84.16     927.8     84.160   14.89     927.8    145     13
+  0.5475696396      73.88     84.16     885.1     84.160   14.89     885.1     93      0
+  0.5675696396      78.76     89.64     904.9     89.645   15.86     904.9    123      0
+  0.5875696396      85.38     95.14    1139.7     95.139   16.83    1139.7    156     57
+  0.6075696396      84.51     95.13     898.4     95.134   16.83     898.4    122      0
+  0.6275696396      90.51    101.11     917.7    101.112   17.89     917.7    150      5
+  0.6475696396      90.76    101.11     879.6    101.112   17.89     879.6     98      0
+
+  HOW TO READ THIS
+
+  bead a>.5   Volume of the CELLS that are more than half metal above z = 0.
+              This is the old 'metal>0' number, kept only for comparison.
+  bead aV     sum(alpha*V) over the same region -- the actual metal there.
+              a>.5 BELOW aV means the bead is spread thinly across many
+              partly-filled cells; the gap between the two columns is
+              interface smearing, and it should not grow without bound.
+
+  deposited   sum(alpha*V) over the whole domain, MINUS the substrate
+              measured at t = 0. This is the conservation test, and it
+              is the only mass column that can fail honestly: VOF conserves
+              sum(alpha*V) to machine precision, so a real fall here means
+              mass is leaving through a boundary or being clipped.
+
+  drops       'deposited' in units of one nominal droplet. Should climb in
+              near-integer steps: 1.00, 2.00, 3.00. A steady shortfall (0.95
+              each) means cells are being clipped at placement -- the
+              injector reports this itself as 'placed X of Y nominal'. A
+              value that FALLS is mass loss.
+
+  T bead      Hottest cell in the bead. Injected at droplet_T_K and cooling
+              fast: a droplet meeting a plate of its own alloy drops to the
+              mean of the two temperatures almost instantly, because with
+              equal thermal effusivities the contact temperature is
+              (T_drop + T_plate)/2 with no material contrast to slow it.
+
+  >sol/>liq   Metal cells above solidus / liquidus. For a real weld pool
+              these must be non-zero at EVERY row. Non-zero only on the rows
+              next to an injection means each droplet freezes before the
+              next arrives, which is deposition without a pool.

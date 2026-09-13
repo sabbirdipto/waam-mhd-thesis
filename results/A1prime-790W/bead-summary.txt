@@ -1,0 +1,81 @@
+  mesh: 88,200 cells from 0/  (99 x-stations, 50 y-stations)
+  domain: full  ->  areas and widths x1   [constant/caseParameters]
+  developed window = [deposition start + 5 mm, pool trailing edge]
+
+     time    x arc         window    n        A   h crown    h max    w toe   w half   ripple
+        s       mm             mm          mm^2        mm       mm       mm       mm        %
+  ----------------------------------------------------------------------------------------
+        0      nan     no deposit
+     0.02      nan     no deposit
+     0.04      nan  not developed
+     0.06      nan  not developed
+     0.08      nan  not developed
+      0.1      nan  not developed
+     0.12      nan  not developed
+     0.14      nan  not developed
+  0.1475696396      nan  not developed
+  0.1675696396      nan  not developed
+  0.1875696396      nan  not developed
+  0.2075696396      nan  not developed
+  0.2275696396      nan  not developed
+  0.2475696396      nan  not developed
+  0.2675696396      nan   -7.8 to  -6.2    4    4.831     1.245    1.249    6.976    3.286     34.9
+  0.2875696396      nan   -7.8 to  -6.8    3    5.558     1.485    1.504    6.732    3.258      5.9
+  0.3075696396      nan   -7.8 to  -6.2    4    5.555     1.515    1.531    6.960    3.131     10.2
+  0.3275696396      nan   -7.8 to  -6.8    3    6.355     1.763    1.786    6.856    3.300     24.9
+  0.3475696396      nan   -7.8 to  -6.2    4    6.359     1.799    1.845    6.739    3.124     21.4
+  0.3675696396      nan   -7.8 to  -5.8    5    6.671     1.884    1.930    6.626    3.131     26.3
+  0.3875696396      nan   -7.8 to  -5.2    6    6.974     1.994    2.045    6.544    3.064     35.8
+  0.4075696396      nan   -7.8 to  -4.8    7    7.075     1.966    2.017    6.554    3.103     32.0
+  0.4275696396      nan   -7.8 to  -4.8    7    7.146     2.009    2.057    6.503    3.087     35.0
+  0.4475696396      nan   -7.8 to  -4.2    8    7.256     2.019    2.061    6.608    3.095     34.7
+  0.4675696396      nan   -7.8 to  -4.2    8    7.298     2.055    2.100    6.589    3.074     35.9
+  0.4875696396      nan   -7.8 to  -3.8    9    7.472     2.101    2.140    6.594    3.061     41.9
+  0.5075696396      nan   -7.8 to  -3.2   10    7.674     2.138    2.174    6.655    3.066     46.2
+  0.5275696396      nan   -7.8 to  -3.2   10    7.712     2.153    2.189    6.648    3.059     50.9
+  0.5475696396      nan   -7.8 to  -2.8   11    7.802     2.175    2.209    6.665    3.060     50.5
+  0.5675696396      nan   -7.8 to  -2.2   12    7.861     2.195    2.228    6.560    3.068     50.7
+  0.5875696396      nan   -7.8 to  -2.2   12    7.874     2.208    2.244    6.620    3.061     51.0
+  0.6075696396      nan   -7.8 to  -1.8   13    7.952     2.234    2.272    6.584    3.060     51.1
+  0.6275696396      nan   -7.8 to  -1.8   13    7.969     2.246    2.290    6.582    3.052     51.5
+  0.6475696396      nan   -7.8 to  -0.8   15    8.062     2.258    2.306    6.537    3.073     51.2
+
+  HOW TO READ THIS
+
+  A         Deposited cross-section above z = 0, mm^2. Pure sum(alpha*V), so
+            it is conserved and can be checked against mass in independently:
+            once the bead is developed, A must equal the wire volume rate
+            divided by the travel speed. If A is right and 'h crown' is wrong,
+            the metal is all there and the FREE SURFACE SHAPE is wrong --
+            which is the arc-pressure hypothesis. If A itself is wrong, the
+            problem is upstream, in delivery.
+
+  h crown   Equivalent metal height on the centreline. This is the number to
+            put against Zhao 1.55 mm (simulated) and 1.80 mm (experimental).
+            It is an alpha-weighted column integral, not an alpha = 0.5
+            contour crossing, so a smeared interface does not inflate or
+            deflate it.
+
+  h max     Same quantity maximised over y. If this exceeds 'h crown' by more
+            than a few percent the crown is off-centre, which would be a
+            direct geometric consequence of the one-directional Marangoni
+            circulation already seen in the U_x profile.
+
+  w toe     Full width at 10% of peak height -- the model analogue of the
+            toe-to-toe width measured on a macrograph. Compare to Zhao 8.2 mm.
+  w half    Full width at half maximum, reported beside it so the choice of
+            width definition stays visible rather than being made silently.
+
+  ripple    Peak-to-peak spread of A(x) across the developed window, percent
+            of mean. Droplets land every 0.665 mm (v/f). A few percent is
+            discretisation. Tens of percent means the droplet periodicity is
+            surviving into the solidified bead -- humping, not flow -- and
+            that is a physical difference from Zhao's smooth bead, not a
+            post-processing artefact.
+
+  window    The x range that has BOTH solidified (behind the pool trailing
+            edge) AND cleared the start transient (more than 5 mm past
+            first deposition). Only this region is comparable to a
+            steady-state macrograph. 'not developed' on every row means the
+            run is too short for a geometry comparison to mean anything, and
+            no number quoted from it should enter the thesis.

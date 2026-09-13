@@ -1,0 +1,61 @@
+790 W arc, 0.5 mm core, full domain, 88,200 cells.
+Run 0 -> 0.1476 s, then RESTARTED from latestTime and continued to 0.6476 s.
+Two logs: log.laserbeamFoam.run1-to-0.1476 and log.laserbeamFoam.restart.
+
+WHY 790 W
+  arc_power_W = eta_1 * U * I with eta_1 = eta - eta_2 (Zhu et al., Int J Heat
+  Mass Transf 126:1206-1221, Eq. 8). Zhao Eq. 27 puts eta = 0.70 in the eta_1
+  slot, but Zhu defines eta as the TOTAL and eta_2 as the droplet share. With
+  droplets entering as mass at 1506 K (722 W), Zhao's reading delivers 2234 W
+  against U*I = 2160 W -- 103%, impossible.
+      eta_2 = 0.334 (Zhu Eq. 9)   eta_1 = 0.366   arc = 790 W
+      790 + 722 = 1512 W = 0.70 * U*I. Books close.
+
+RESULTS
+
+  1. THE POOL ESTABLISHES AND HOLDS.
+     Last zero in 'pool cells' at t = 0.2476. Every one of the 20 writes after
+     it is non-zero, 16 to 156 cells.
+     An earlier reading of this same case, stopped at t = 0.12, concluded "no
+     pool". THAT WAS WRONG -- t <= 0.12 is the cold-plate start transient, with
+     the arc 2.4 mm into a 40 mm bead and the plate at 311 K. Zhao's earliest
+     pool evidence is Fig. 7a at t = 0.52 s.
+
+  2. 'bottom' SCALES WITH THE POWER RATIO, twice over.
+     t = 0.02, before the first droplet (t = 0.0333), only the arc is heating:
+         rise ratio vs the 1512 W case = 0.520, arc power ratio = 0.522
+     t = 0.65, droplets included:
+         641.8 K vs 810.1 K -> rise ratio 0.670, total power ratio 0.677
+     Confirms eta_1 = 0.366 from measurement, not from figure reading.
+
+  3. MASS DISTRIBUTION IS CORRECT; ONLY SHAPE IS WRONG.
+     developed window at t = 0.6476, x = -7.75 to -0.75 mm
+         A        8.062 mm2   (mass-conserved value 8.48, -4.9%)
+         h crown  2.258 mm    (Zhao 1.55 sim / 1.80 exp)
+         w toe    6.537 mm    (Zhao ~8.2)
+     The 1512 W case gave A = 10.178 (+20%), h 2.788, w 5.315. Every metric
+     moved toward Zhao.
+     Parabolic-cap test, h = 3A/(2w):
+         Zhao    predicted 1.551, reported 1.550   -0.1%  (parabolic)
+         790 W   predicted 1.850, measured 2.258  +22.1%  (too peaked)
+     With A correct, the residual error is PURELY SHAPE -- which is what the
+     two unimplemented forces are for: arc pressure 228 Pa (Zhao Eq. 25) and
+     the pool Lorentz force 435 Pa (Zhao Eqs. 22-24).
+
+CAVEATS
+  * 'd sol' sits at 0.25 mm = ONE 0.5 mm cell from t = 0.5076. That is the
+    mesh floor, not a measurement. 'd liq' is 0.00 or negative throughout, so
+    there is no fully-liquid substrate. Penetration CANNOT be compared with
+    Zhao at this resolution.
+  * 'ripple' 51.2% is a monotonic TREND across the window (A climbs 5.7 -> 9.8),
+    not droplet periodicity. The metric is peak-to-peak and cannot tell them
+    apart. Adjacent-station wobble is ~5%. Detrend before quoting it.
+  * 'bottom' 641.8 K at t = 0.6476, decelerating 376 -> 262 -> 171 -> 146 K/s.
+    Extrapolation to the 815 K solidus lands between t = 1.8 and 2.6 s, so a
+    2.5 s production run is MARGINAL. Not callable from this data.
+  * Writes after the restart sit on an offset grid (0.1675696, 0.1875696, ...)
+    because writeControl runTime counts from startTime. t = 0.66 was never a
+    write time; 0.6475696396 is the last. Use writeControl adjustableRunTime
+    to avoid this.
+
+This is the A1' reference case for the ablation study.
