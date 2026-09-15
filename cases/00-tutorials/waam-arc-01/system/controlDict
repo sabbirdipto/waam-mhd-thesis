@@ -1,21 +1,21 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2506                                  |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 FoamFile
 {
-    version         2;
-    format          ascii;
-    class           dictionary;
-    location        "system";
-    object          controlDict;
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
 }
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-libs            ( "libthermoTools.so" );
+libs            ("libthermoTools.so");
 
 application     laserbeamFoam;
 
@@ -25,7 +25,7 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         0.66;
+endTime         0.5;
 
 deltaT          1e-05;
 
@@ -49,11 +49,10 @@ runTimeModifiable yes;
 
 adjustTimeStep  yes;
 
-maxCo           0.1;
-
+maxCo           0.1;//0.1;
 maxAlphaCo      0.1;
 
-maxDeltaT       4e-05;
+maxDeltaT       1e-05;
 
 
 // ************************************************************************* //

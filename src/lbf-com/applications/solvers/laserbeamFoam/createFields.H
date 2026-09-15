@@ -283,7 +283,10 @@ const bool arcOn = arcDict.found("goldak_af_m");
 
 scalar arcPower_ = 0.0, arc_af_ = 1.0, arc_ar_ = 1.0, arc_b_ = 1.0,
        arc_c_ = 1.0, arc_ff_ = 1.0, arc_fr_ = 1.0, arcV_ = 0.0,
-       arc_x0_ = 0.0, arc_y0_ = 0.0, arc_z0_ = 0.0, arcSym_ = 1.0;
+       arc_x0_ = 0.0, arc_y0_ = 0.0, arc_z0_ = 0.0, arcSym_ = 1.0,
+       // Zhao Eq. 25 arc pressure. arcI_ = 0 switches it off entirely,
+       // mirroring the way goldak_af_m switches the heat source on.
+       arcI_ = 0.0, arcSigP_ = 0.002, arcPzMax_ = 0.003;
 
 if (arcOn)
 {
@@ -296,6 +299,27 @@ if (arcOn)
     arc_x0_   = readScalar(arcDict.lookup("arc_x0_m"));
     arc_y0_   = readScalar(arcDict.lookup("arc_y0_m"));
     arc_z0_   = readScalar(arcDict.lookup("arc_z0_m"));
+
+    // Arc pressure, Zhao Eq. 25. OPTIONAL: absent or zero current means the
+    // term is never applied, so older cases stay bit-identical.
+    arcI_     = arcDict.lookupOrDefault<scalar>("arc_current_A", 0.0);
+    arcSigP_  = arcDict.lookupOrDefault<scalar>("sigma_p_m", 0.002);
+    arcPzMax_ = arcDict.lookupOrDefault<scalar>("arc_p_zmax_m", 0.003);
+
+    if (arcI_ > SMALL)
+    {
+        const scalar mu0_ = 4.0*M_PI*1.0e-7;
+        Info<< "Arc pressure: Zhao Eq. 25, I=" << arcI_ << " A, sigma_p="
+            << arcSigP_*1e3 << " mm" << nl
+            << "     peak " << mu0_*arcI_*arcI_/(8.0*M_PI*arcSigP_*arcSigP_)
+            << " Pa, total " << mu0_*arcI_*arcI_/(4.0*M_PI)*1e3 << " mN" << nl
+            << "     applied for z < arc_z0 + " << arcPzMax_*1e3 << " mm"
+            << endl;
+    }
+    else
+    {
+        Info<< "Arc pressure: OFF (arc_current_A absent or zero)" << endl;
+    }
 
     // Goldak's front/rear split. ff + fr = 2 by construction.
     arc_ff_ = 2.0*arc_af_/(arc_af_ + arc_ar_);
@@ -703,6 +727,23 @@ const volScalarField zeroJoulesource
     ),
     mesh,
     dimensionedScalar("zeroJoulesource", dimensionSet(1, -1, -3, 0, 0), 0.0)
+);
+
+// Arc pressure (Zhao Eq. 25). AUTO_WRITE deliberately, like arcSource: a force
+// you cannot look at is a force you cannot verify. Expect max 227.8 Pa at
+// I = 135 A, sigma_p = 2 mm.
+volScalarField pArc
+(
+    IOobject
+    (
+        "pArc",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("0", dimensionSet(1,-1,-2,0,0,0,0), 0.0)
 );
 
 // Recoil Pressure

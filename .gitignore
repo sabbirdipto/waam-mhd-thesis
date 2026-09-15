@@ -72,3 +72,4 @@ cases/**/mass.*
 *.dep
 __pycache__/
 *.pyc
+src/laserbeamFoam.upstream-DO-NOT-BUILD/

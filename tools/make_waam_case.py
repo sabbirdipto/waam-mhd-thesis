@@ -468,6 +468,17 @@ arc_x0_m          -0.010;           // torch start. Domain is x[-15,+35]
                                       // 5 mm PAST the plate edge.
 arc_y0_m          0;                // on the symmetry plane
 arc_z0_m          0;                // substrate top surface
+
+// Arc pressure, Zhao Eq. 25:  P = mu0*I^2/(8*pi*sp^2) * exp(-r^2/(2*sp^2))
+// Peak {5e-8*ARC_I*ARC_I/0.002**2:.1f} Pa, surface integral {1e-7*ARC_I*ARC_I*1e3:.2f} mN.
+// (pi cancels: mu0/(8*pi) = 5e-8 and mu0/(4*pi) = 1e-7)
+// Omit arc_current_A, or set it to 0, to switch the term off entirely.
+arc_current_A     {ARC_I:g};            // A, Zhao Table 2
+sigma_p_m         0.002;            // arc pressure distribution radius [est.]
+arc_p_zmax_m      0.003;            // applied below arc_z0 + this. Keeps the
+                                    // term off free-flying droplets, which
+                                    // already carry a prescribed velocity --
+                                    // 228 Pa is ~6x a droplet's own weight.
 sym               {SYM};            // {SYM} domain -> target {ARC_POWER*(0.5 if SYM=="half" else 1.0):g} W
 {DROPLET_BLOCK}"""
 

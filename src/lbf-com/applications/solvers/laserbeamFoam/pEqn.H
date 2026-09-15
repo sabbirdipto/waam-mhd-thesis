@@ -29,7 +29,13 @@
     (
         (
             mixture.surfaceTensionForce()*fvc::interpolate(damper)
-          +(fvc::interpolate(pVap)*fvc::snGrad(alpha1)*fvc::interpolate(damper))
+          // pArc: Zhao Eqs. 25-26, same CSF conversion and the same sign as
+          // the recoil pressure -- both are normal pressures pushing from the
+          // gas side into the liquid.
+          // THIS IS THE LIVE PATH. fvSolution has momentumPredictor no, so the
+          // equivalent block in UEqn.H never executes and this face flux is
+          // what actually moves the surface.
+          +(fvc::interpolate(pVap + pArc)*fvc::snGrad(alpha1)*fvc::interpolate(damper))
           - ghf*fvc::snGrad(rho*rhok)
         )*rAUf*mesh.magSf()
     );

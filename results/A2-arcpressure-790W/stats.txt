@@ -1,0 +1,84 @@
+  arc:  789.7 W  [caseParameters, full domain]
+  droplets: 722 W as mass  [0.450 g/s at 1506 K]   total in 1512 W
+  mesh: 88,200 cells, geometry read from 0/  (cell volume 0.0985 to 0.394 mm^3, ratio 4)
+  geometry check passed on all 88,200 cells
+
+     time   T metal     T gas    bottom   far met   far gas    pool    volume   d sol   d liq  U metal    U gas   E kept
+        s         K         K         K         K         K   cells      mm^3      mm      m/s      m/s        %
+  -------------------------------------------------------------------------------------------------------------------
+     0.02     410.2     410.1     322.3     300.0     300.0       0      0.00    0.00    0.00   0.0000   0.0009     53.7
+     0.04     848.5    1279.0     349.9     300.0     300.0       5      0.58   -0.25    0.00   0.0131   0.9214     79.8
+     0.06     569.1     566.1     383.3     300.0     300.0       0      0.00    0.00    0.00   0.0000   0.8588     71.4
+     0.08     826.3     825.9     414.3     300.0     300.0       4      0.50   -0.25    0.00   0.0004   2.5501     82.4
+      0.1    1505.9    1503.8     443.8     300.0     338.9      44      5.50   -1.25   -1.25   0.5945   3.8003     87.1
+     0.12     737.9     756.2     465.5     300.0     355.9       0      0.00    0.00    0.00   0.0000   6.9749     81.1
+     0.14    1041.7    1049.8     485.9     300.1     361.8      51      6.38   -0.25   -0.75   0.3883   4.9894     83.9
+     0.16     832.0     828.6     501.7     300.2     402.9       2      0.25   -0.75    0.00   0.0001   5.7367     80.9
+     0.18     867.1     869.6     516.6     300.3     376.9      22      2.75   -0.75    0.00   0.0597   7.7605     84.2
+      0.2    1502.9    1503.3     529.5     300.5     370.8      54      6.75   -0.25   -0.75   1.4594   7.9377     86.4
+     0.22     816.9     818.0     540.5     300.8     375.6       2      0.25   -0.25    0.00   0.0000   8.3465     82.6
+     0.24     946.2    1028.1     550.9     301.3     397.2      66      8.25   -0.25   -0.75   0.2862   8.3150     84.3
+     0.26     843.6     840.7     558.8     301.8     386.0       7      0.88   -0.75    0.00   0.0002   8.3134     82.3
+     0.28     899.8     898.5     567.6     302.4     369.6      62      7.75   -0.25    0.00   0.1781   8.3194     83.9
+      0.3    1504.6    1503.8     574.8     303.2     366.7      59      7.38   -0.75   -1.25   1.4467   8.3120     85.5
+     0.32     887.7     962.8     580.7     304.2     373.4      63      7.88   -0.25    0.00   0.1839   8.2829     83.8
+     0.34    1040.8    1041.0     586.9     305.2     373.0     102     12.75   -0.25   -0.75   0.3380   8.2714     84.8
+     0.36     884.5     881.7     592.4     306.4     380.5      53      6.63   -0.25    0.00   0.0725   8.2915     83.2
+     0.38     914.5     916.9     597.6     307.7     437.4     110     13.75   -0.25   -0.75   0.2307   8.4625     84.6
+      0.4    1504.8    1503.6     603.0     309.1     433.4     106     13.25   -0.25   -0.75   1.3290   8.4723     85.8
+     0.42     902.5     903.2     607.7     310.6     432.4      86     10.75   -0.25    0.00   0.1924   8.4155     84.0
+     0.44    1010.9    1011.9     611.9     312.2     446.2     109     13.62    0.25   -0.25   0.2613   8.4702     84.4
+     0.46     890.6     884.4     616.0     313.9     455.4      74      9.25   -0.25    0.00   0.1591   8.4433     83.4
+     0.48     907.2     907.4     619.7     315.7     423.0     108     13.50    0.25   -0.75   0.2034   8.4748     84.3
+      0.5    1505.4    1504.6     623.2     317.5     452.6      90     11.25    0.25   -1.25   1.2257   8.4134     84.6
+     0.52     898.5     894.0     626.7     319.5     471.2      80     10.00    0.25    0.00   0.1895   8.1900     82.8
+     0.54    1488.5    1487.8     630.0     321.4     448.7     110     13.75    0.25   -0.25   0.6024   8.2509     83.0
+     0.56    1423.9    1422.1     632.2     323.4     440.3      62      7.75    0.25   -3.25   0.2445   9.0579     81.7
+     0.58     908.1     962.1     634.0     325.5     449.5     107     13.37    0.25   -0.75   0.2209   8.5401     82.1
+      0.6    1505.7    1504.8     636.2     327.6     436.7      96     12.00    0.25   -1.25   1.0347   9.8431     82.7
+     0.62     894.3     895.4     638.6     329.7     441.8      88     11.00    0.25    0.00   0.3594   9.9004     81.4
+     0.64    1014.7    1063.6     640.7     331.8     459.9     115     14.37    0.25   -0.25   0.2425  10.2959     81.5
+     0.66     888.4     886.2     642.2     333.9     460.3      80     10.00    0.25    0.00   0.1787  10.0628     80.6
+
+  GATE:
+    T metal below ~1600 K ........ vaporisation is disabled, so a runaway has
+                                   no ceiling. Read the METAL column: T gas
+                                   legitimately spikes near a droplet.
+    pool volume > 0 AND CONTINUOUS  a pool that appears at each droplet and
+                                   vanishes between them is not a weld pool,
+                                   it is three separate solidification events.
+                                   Every row must be non-zero, not just some.
+    depth > 0.5 mm ............... more than one cell layer of the substrate
+                                   is fused. At exactly 0.25 mm the pool is
+                                   one cell deep and the number is the mesh
+                                   talking, not the physics.
+    d liq vs d sol ............... 'd sol' is measured to the bottom of the
+                                   MUSHY zone (815 K up), 'd liq' to the
+                                   fully liquid boundary (906 K up). Zhao's
+                                   Figs. 11 and 18 colour to 906 K, so quote
+                                   'd liq' against his ~1 mm penetration.
+                                   Al-5Mg has a 91 K mushy interval, so the
+                                   two differ a lot -- do not mix them.
+    d sol < 4 mm ................. the mushy zone has not reached the plate
+                                   bottom. Plate is 4 mm (Zhao's coupon)
+                                   since the Stage 1 trim, NOT 6 mm.
+    bottom < 815 K ............... the underside must stay below the solidus
+                                   or the plate is melting through. It WILL
+                                   climb: Eq. 29 (h = 80) is live now but
+                                   removes only ~2% of the budget, and the
+                                   trimmed plate is 6,000 mm3 -- a third of
+                                   the old thermal mass. Watch for a plateau;
+                                   a linear climb means melt-through.
+    far met < 815 K .............. NO LONGER a domain-size gate. Since the
+                                   trim, farField is the PHYSICAL long edge of
+                                   Zhao's 50 x 30 x 4 mm coupon, 15 mm from
+                                   the bead, and it is EXPECTED to warm. The
+                                   gate is only that it stays well below the
+                                   solidus. 'far gas' is not a gate at all:
+                                   argon is advected, so it reports where the
+                                   plume went, not how far heat conducted --
+                                   and it moved with the trim, so it is not
+                                   comparable across mesh changes.
+
+  Al-5Mg solidus 815 K, liquidus 906 K. 'Pool' is above the SOLIDUS,
+  i.e. mushy plus fully liquid -- the region that is no longer solid.

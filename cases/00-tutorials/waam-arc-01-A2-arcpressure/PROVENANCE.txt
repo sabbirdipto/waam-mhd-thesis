@@ -1,0 +1,32 @@
+A2 -- arc pressure ON. 790 W, 0.5 mm, 88,200 cells, 0 -> 0.66 s.
+Clean run from t = 0, no restarts, so writes are exact multiples of 0.02.
+
+Zhao Eq. 25: P = mu0*I^2/(8*pi*sp^2)*exp(-r^2/(2*sp^2)), I = 135 A,
+sigma_p = 2 mm -> peak 227.8 Pa, surface integral 1.82 mN.
+Applied as a CSF body force in pEqn.H. NOT UEqn.H: fvSolution has
+momentumPredictor no, so that block is dead code.
+z-gated at arc_z0 + 3 mm so it does not act on free-flying droplets, which
+already carry a prescribed 0.9 m/s -- 228 Pa is ~6x a droplet's own weight.
+
+VERIFIED before the run: max(pArc) = 224.2806 Pa at t = 0.1, which is the
+analytic peak 227.8125 sampled at the nearest cell centre 0.354 mm off axis.
+Agreement to 4.5e-8 Pa.
+
+vs A1' (waam-arc-01-0p5mm-790W), 15-station window:
+    A        8.062 -> 8.438 mm2   +4.7%
+    h crown  2.258 -> 2.349 mm    +4.0%   AWAY from Zhao 1.55
+    w toe    6.537 -> 6.768 mm    +3.5%   toward Zhao 8.2
+    ripple    51.2 ->  31.2 %     -39%
+    bottom   641.8 -> 642.2 K     +0.4 K, i.e. no thermal effect
+    d sol     0.25 ->  0.25 mm    unchanged, no penetration cost
+    pool continuous from 0.2676 -> 0.14
+
+Live pool ahead of the window (x = +0.25 to +4.75) has w toe 7.5-7.8 mm
+against 5.2-7.4 in A1'. The force acts where metal is free to move.
+
+CAUTION: A1' write times carry a ...5696396 offset from two restarts, so every
+comparison is 7.6 ms out of phase = 23% of a droplet cycle. Pool cell counts
+and other instantaneous quantities are NOT like-for-like.
+
+Arc pressure supplies 32% of the 663 Pa of missing spreading force. The pool
+Lorentz force (Zhao Eqs. 22-24, 435 Pa) is still absent.

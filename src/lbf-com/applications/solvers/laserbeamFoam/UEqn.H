@@ -48,6 +48,12 @@ if (damperSwitch)
 pVap = 0.54*p0*Foam::exp(LatentHeatVap*Mm*((T - Tvap)/(R*T*Tvap)));
 pVap.correctBoundaryConditions();  // ADDED
 
+// Computed HERE, not beside updateArcSource.H, because that include sits AFTER
+// UEqn.H in laserbeamFoam.C while pEqn.H -- where the force actually takes
+// effect, momentumPredictor being no -- runs later still. Here it is current
+// for both.
+#include "updateArcPressure.H"
+
 
 if (mthd.valid())
 {
