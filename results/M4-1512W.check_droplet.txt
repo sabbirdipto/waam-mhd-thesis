@@ -1,0 +1,46 @@
+  substrate at t = 0: 6,000.0 mm^3  (measured, sum alpha*V)
+  nominal droplet: 5.652 mm^3  [caseParameters droplet_radius_m]
+
+      time  bead a>.5   bead aV    T bead  deposited   drops   T metal   >sol   >liq
+         s       mm^3      mm^3         K       mm^3                 K  cells  cells
+  ------------------------------------------------------------------------------
+      1.06     164.83    178.07     991.5    159.416   28.21    1008.4   1024    168
+      1.08     169.46    184.21    1014.2    165.209   29.23    1034.9   1066    201
+       1.1     174.71    189.75    1505.1    170.543   30.18    1505.1   1086    216
+      1.12     175.08    189.67    1004.5    170.350   30.14    1013.0   1084    186
+      1.14     181.58    196.44     988.6    175.634   31.08    1037.0   1123    231
+      1.16     181.58    195.10     999.1    175.474   31.05    1014.9   1096    170
+      1.18     185.96    201.12    1010.5    181.275   32.07    1027.4   1129    199
+       1.2     190.60    206.62    1505.5    186.618   33.02    1505.5   1137    207
+
+  HOW TO READ THIS
+
+  bead a>.5   Volume of the CELLS that are more than half metal above z = 0.
+              This is the old 'metal>0' number, kept only for comparison.
+  bead aV     sum(alpha*V) over the same region -- the actual metal there.
+              a>.5 BELOW aV means the bead is spread thinly across many
+              partly-filled cells; the gap between the two columns is
+              interface smearing, and it should not grow without bound.
+
+  deposited   sum(alpha*V) over the whole domain, MINUS the substrate
+              measured at t = 0. This is the conservation test, and it
+              is the only mass column that can fail honestly: VOF conserves
+              sum(alpha*V) to machine precision, so a real fall here means
+              mass is leaving through a boundary or being clipped.
+
+  drops       'deposited' in units of one nominal droplet. Should climb in
+              near-integer steps: 1.00, 2.00, 3.00. A steady shortfall (0.95
+              each) means cells are being clipped at placement -- the
+              injector reports this itself as 'placed X of Y nominal'. A
+              value that FALLS is mass loss.
+
+  T bead      Hottest cell in the bead. Injected at droplet_T_K and cooling
+              fast: a droplet meeting a plate of its own alloy drops to the
+              mean of the two temperatures almost instantly, because with
+              equal thermal effusivities the contact temperature is
+              (T_drop + T_plate)/2 with no material contrast to slow it.
+
+  >sol/>liq   Metal cells above solidus / liquidus. For a real weld pool
+              these must be non-zero at EVERY row. Non-zero only on the rows
+              next to an injection means each droplet freezes before the
+              next arrives, which is deposition without a pool.

@@ -1,0 +1,59 @@
+  mesh: 88,200 cells from 0/  (98 x-planes, 50 y-planes)
+  substrate surface layer at z = -0.250 mm, 4,900 cells
+  solidus 815 K; Zhao bead width 8.2 mm
+
+            time  w fuse max  w liq max  w melt max  x at max   vs Zhao
+               s          mm         mm          mm        mm         %
+  ----------------------------------------------------------------------
+            0.18       1.504      0.000       1.504     -6.75     -81.7
+             0.2       0.878      0.000       0.878     -7.25     -89.3
+            0.22       1.778      0.000       1.778     -6.75     -78.3
+            0.24       1.945      0.090       1.945     -6.25     -76.3
+            0.26       2.004      0.000       2.004     -6.25     -75.6
+            0.28       2.406      0.000       2.406     -5.75     -70.7
+             0.3       2.221      0.000       2.221     -5.25     -72.9
+            0.32       2.623      0.000       2.623     -4.75     -68.0
+            0.34       2.675      1.210       2.675     -4.75     -67.4
+            0.36       2.741      0.000       2.741     -4.25     -66.6
+            0.38       2.928      0.815       2.928     -3.75     -64.3
+             0.4       2.843      0.000       2.843     -3.75     -65.3
+            0.42       3.038      0.845       3.038     -3.25     -63.0
+            0.44       3.056      1.248       3.056     -2.75     -62.7
+            0.46       3.050      0.000       3.050     -2.75     -62.8
+            0.48       3.186      0.809       3.186     -2.25     -61.1
+             0.5       3.079      0.000       3.079     -2.25     -62.5
+
+  HOW TO READ THIS
+
+  w fuse   Transverse extent of MELTED SUBSTRATE at the plate surface --
+           substrate metal above the 815 K solidus, in the topmost cell layer
+           below z = 0. This is the puddle the bead can spread across, and it
+           is the number to put against Zhao's 8.2 mm bead width.
+
+  w liq    The same, but above the liquidus. The gap between w fuse and w liq
+           is the mushy rim. If that rim is a large fraction of w fuse, the
+           pool edge is slush rather than liquid, and slush does not flow --
+           note that laserbeamFoam also zeroes the Marangoni force below the
+           liquidus, so the rim gets no outward drive either.
+
+  w melt   Widest molten extent at ANY depth in the substrate. Wider than
+           w fuse means the pool is undercut -- broader below the surface than
+           at it. That is the shape the Lorentz force is supposed to produce,
+           so it is worth having a before-and-after number for it.
+
+  THE READING
+
+    w fuse near 8.2 mm, bead w toe near 6.5 mm
+        The substrate melts as wide as Zhao's and the metal is NOT spreading
+        into it. A force problem. Eqs. 22-24 are the right next job.
+
+    w fuse near 6.5 mm, matching w toe
+        The bead already fills its puddle. No body force widens a bead beyond
+        the metal it can wet, so neither the Lorentz force nor mesh refinement
+        addresses this, and the heat input distribution -- Goldak b, the
+        eta_1 split, or both -- is what needs re-examining.
+
+    w fuse near ZERO
+        The arc is not melting the plate at all and the deposit is sitting on
+        solid metal. Everything downstream of that is a wetting problem, not a
+        welding one.

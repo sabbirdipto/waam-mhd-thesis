@@ -1,0 +1,38 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  waam-arc-01 -- built by make_waam_case.py. Concrete values, no tokens.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       uniformDimensionedVectorField;
+    location    "constant";
+    object      g;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// WRITTEN, NOT COPIED, and that distinction is the point of this file.
+//
+// This was copied verbatim from the donor, and the donor is Plate2D-mhd: a
+// TWO-DIMENSIONAL x-y case in which y is vertical, so its g is (0 -9.81 0).
+//
+// This mesh is z-up and travel is +x. Everything else already agrees:
+//     setFieldsDict          fills z < 0 with metal, argon above
+//     caseParameters         arc_z0_m 0 is "substrate top surface"
+//     blockMeshDict          inlet is the z-max face, substrateBottom z-min
+//     updateArcSource.H      skips cells with (Cc.z() - arc_z0_) > 0
+//     updateDropletSource.H  applies the impact force along (0 0 -1)
+//
+// Copying the donor's g pointed gravity along -y, HORIZONTAL here. It reaches
+// the momentum equation through ghf*fvc::snGrad(rho*rhok) in UEqn.H, so the
+// failure was not a crash but a plausible-looking wrong answer: the crown
+// drifted off the centreline, Boussinesq buoyancy drove the argon plume 25 mm
+// sideways into farField instead of upward, and the deposit never spread
+// under its own weight.
+//
+// Re-meshed on a different vertical axis? Edit this. Do not make it a copy.
+
+dimensions      [0 1 -2 0 0 0 0];
+value           (0 0 -9.81);
+
+// ************************************************************* //

@@ -143,6 +143,7 @@ int main(int argc, char *argv[])
         // iteration after the first, so an injection inside the loop is
         // silently discarded on iterations 2 and beyond.
         #include "updateDropletSource.H"
+        #include "syncDropletState.H"
 
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
@@ -176,6 +177,7 @@ int main(int argc, char *argv[])
                 continue;
             }
 
+            #include "updateArcLorentz.H"
             #include "UEqn.H"
             if (mthd.valid())
             {

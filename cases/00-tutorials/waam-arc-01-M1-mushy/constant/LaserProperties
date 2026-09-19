@@ -1,0 +1,38 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  waam-arc-01 -- built by make_waam_case.py. Concrete values, no tokens.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      LaserProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// WAAM is heated by the arc, not a laser. The laser object is constructed
+// unconditionally by the solver, so this dictionary must exist -- but every
+// power in timeVsLaserPower is zero.
+radialPolarHeatSource no;
+
+lasers
+(
+    laser0
+    {
+        timeVsLaserPosition
+        {
+            file            "$FOAM_CASE/constant/timeVsLaserPosition";
+            outOfBounds     clamp;
+        }
+        timeVsLaserPower
+        {
+            file            "$FOAM_CASE/constant/timeVsLaserPower";
+            outOfBounds     clamp;
+        }
+        V_incident      (0 0 -1);   // straight down; irrelevant at zero power
+        laserRadius     0.0005;
+        wavelength       1.064e-6;
+        e_num_density   5.83e29;
+    }
+);

@@ -243,7 +243,44 @@ const dimensionedScalar SB
 
 [[maybe_unused]]const scalar emL(readScalar(transportProperties.lookup("emL")));
 [[maybe_unused]]const scalar emS(readScalar(transportProperties.lookup("emS")));
+
+// --- Marangoni in the mushy zone (WAAM-MHD thesis) -------------------------
+// UEqn.H hard-zeroes the Marangoni force below the liquidus, which discards
+// the epsilon1 ramp already built into the expression. For Al-5Mg, whose
+// 815-906 K freezing range covers ~84% of the pool, that switches off the
+// dominant width mechanism over most of the molten region and all of its
+// outer edge.
+//
+// DEFAULT FALSE: the gate stays, upstream behaviour is reproduced exactly,
+// and every existing case is bit-identical. That is what Gate A and Gate B
+// check.
+//
+// TO ENABLE, put  marangoni_mushy true;  at the TOP LEVEL of
+// constant/transportProperties, beside sigma -- NOT inside the metal { }
+// sub-dictionary. The lookup below is on the top-level IOdictionary, so a key
+// nested inside metal { } is not found, the default false applies, the run
+// completes normally and the result looks like "removing the gate changed
+// nothing". A null input that reads as a null result is the worst kind of
+// failure, so it is spelled out here and again at the end of the patch.
+const bool marangoniMushy =
+    transportProperties.lookupOrDefault<bool>("marangoni_mushy", false);
 const dimensionedScalar TRef ("TRef",transportProperties);
+
+// --- Convective half of Zhao Eq. 29, free surface (WAAM-MHD thesis) --------
+// The radiation half is already in TEqn.H via Qrad_expl / Qrad_inpl. This is
+// the h(T - Ta) term, which was absent.
+//
+// DEFAULT ZERO: absent from transportProperties, the term vanishes and every
+// existing case is bit-identical. That is what Gate A and Gate B check.
+//
+// Ta deliberately reuses TRef rather than introducing a second ambient
+// temperature. Two names for one physical constant is how they drift apart.
+const dimensionedScalar hConvSurf
+(
+    "hConvSurf",
+    dimensionSet(1, 0, -3, -1, 0, 0, 0),
+    transportProperties.lookupOrDefault<scalar>("h_conv_Wm2K", 0.0)
+);
 
 const Polynomial<8> polykappa_m(transportPropertiesMetal.lookup("poly_kappa"));
 const Polynomial<8> polykappa_g(transportPropertiesGas.lookup("poly_kappa"));
@@ -396,6 +433,57 @@ else
 {
     Info<< "Droplet: none (no droplet_radius_m in caseParameters)" << endl;
 }
+
+// --- Droplet state across restarts (WAAM-MHD thesis) -----------------------
+// The scalars above are plain C++ and do not survive a restart. Resuming the
+// M1-mushy run at t = 1.16 s discarded 4.63 mm^3 (0.82 of a droplet) from
+// dropOwed_, starved the pool for 0.04 s, collapsed it by 37%, and ruined
+// ~4 mm of bead. See patch_droplet_restart.py for the measurements.
+//
+// READ_IF_PRESENT: a case with no <time>/uniform/dropletState gets exactly the
+// defaults above, so a run from t = 0 is bit-identical. Gate A and Gate B
+// check that.
+//
+// Only the three ACCUMULATED values are stored. Everything else -- dropR_,
+// dropV_, dropT_, dropVdot_, dropVdrop_, dropMass_, dropTau_, dropGap_ -- is
+// re-read from caseParameters at startup and is identical on a restart.
+// Persisting a value that is also read from a dictionary is how the two drift
+// apart later.
+IOdictionary dropletState
+(
+    IOobject
+    (
+        "dropletState",
+        runTime.timeName(),
+        "uniform",
+        runTime,
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    )
+);
+
+if (dropOn)
+{
+    const scalar owedPrev = dropOwed_;
+    dropOwed_      = dropletState.lookupOrDefault<scalar>("dropOwed", dropOwed_);
+    dropImpactEnd_ = dropletState.lookupOrDefault<scalar>
+                     ("dropImpactEnd", dropImpactEnd_);
+    dropNum_       = dropletState.lookupOrDefault<label>("dropNum", dropNum_);
+
+    if (dropletState.found("dropOwed"))
+    {
+        Info<< "Droplet state: restored from "
+            << runTime.timeName() << "/uniform/dropletState" << nl
+            << "     dropOwed " << dropOwed_*1e9 << " mm^3 ("
+            << dropOwed_/max(dropVdrop_, VSMALL) << " droplet)"
+            << "   dropNum " << dropNum_ << endl;
+    }
+    else if (owedPrev == 0.0)
+    {
+        Info<< "Droplet state: fresh start (no uniform/dropletState)" << endl;
+    }
+}
+
 
 // Momentum source, added to UEqn beside Marangoni and JcrossB. zeroGradient
 // boundaries and not the default 'calculated', which Edit 8 established are
@@ -701,6 +789,60 @@ volVectorField Marangoni
     dimensionedVector("Marangoni", dimensionSet(1, -2, -2, 0, 0), vector::zero)
 );
 
+// --- Arc electromagnetic body force (WAAM-MHD thesis) ----------------------
+// Zhao Eqs. 22-24 in their DERIVED form -- the printed radial and axial
+// expressions are transposed and Eq. 23 carries a spurious factor 2. See
+// patch_lorentz.py. OFF unless arc_lorentz is true, so every existing case is
+// bit-identical; that is what Gate A and Gate B check.
+//
+// arc_lorentz      true;        // enable
+// sigma_j_m        0.002;       // Zhao Table 4, "distribution radius of current"
+// substrate_L_m    0.004;       // plate thickness. Zhao S2 says 4 mm and his
+//                               // figures show 4 mm; S3's "5 mm" is a typo.
+// B_applied_T      (0 0 0);     // Phase 3: external field, crossed with the
+//                               // SAME arc current
+const bool lorentzOn =
+    arcDict.lookupOrDefault<Switch>("arc_lorentz", false);
+
+scalar lorentzI_ = 0.0, lorentzSj_ = 1.0, lorentzL_ = 1.0;
+vector lorentzBext_ = vector::zero;
+bool   lorentzReported_ = false;
+
+if (lorentzOn)
+{
+    lorentzI_  = readScalar(arcDict.lookup("arc_current_A"));
+    lorentzSj_ = readScalar(arcDict.lookup("sigma_j_m"));
+    lorentzL_  = readScalar(arcDict.lookup("substrate_L_m"));
+    lorentzBext_ = arcDict.lookupOrDefault<vector>("B_applied_T", vector::zero);
+}
+
+volVectorField Jarc
+(
+    IOobject("Jarc", runTime.timeName(), mesh,
+             IOobject::NO_READ, IOobject::AUTO_WRITE),
+    mesh,
+    dimensionedVector("zero", dimensionSet(0, -2, 0, 0, 0, 1, 0), Zero),
+    zeroGradientFvPatchVectorField::typeName
+);
+
+volVectorField Bself
+(
+    IOobject("Bself", runTime.timeName(), mesh,
+             IOobject::NO_READ, IOobject::AUTO_WRITE),
+    mesh,
+    dimensionedVector("zero", dimensionSet(1, 0, -2, 0, 0, -1, 0), Zero),
+    zeroGradientFvPatchVectorField::typeName
+);
+
+volVectorField arcLorentz
+(
+    IOobject("arcLorentz", runTime.timeName(), mesh,
+             IOobject::NO_READ, IOobject::AUTO_WRITE),
+    mesh,
+    dimensionedVector("zero", dimensionSet(1, -2, -2, 0, 0, 0, 0), Zero),
+    zeroGradientFvPatchVectorField::typeName
+);
+
 const volVectorField zeroJcrossB
 (
     IOobject
@@ -895,14 +1037,32 @@ rhophicp = fvc::interpolate(cp)*rhoPhi;
 
 
 
+// --- Mushy-zone Darcy constants (WAAM-MHD thesis) --------------------------
+// Zhao Eq. 7 is this same sink. He never states A, only that "values between
+// 10^4 and 10^7 are commonly recommended" -- three orders of magnitude, over
+// which the distance metal at epsilon1 = 0.3 travels before freezing runs
+// from 0.04 mm to 3.7 mm. Against a 2.3 mm width deficit that is a free
+// parameter the size of the measurement, so it belongs in the case file and
+// in the per-run record, not in a header.
+//
+// DEFAULTS ARE THE PREVIOUS LITERALS, so with no keys present every existing
+// case is bit-identical. That is what Gate A and Gate B check.
+//
+// Note on darcy_q: Zhao Eq. 7 uses 0.001, laserbeamFoam 1e-12. It only enters
+// where epsilon1^3 is comparable to it -- below epsilon1 ~ 0.1 -- and there
+// the metal travels 0.003 mm either way. The difference is immaterial; the
+// default stays at the solver's value so nothing moves, and the deviation is
+// recorded rather than silently harmonised.
 const dimensionedScalar DarcyConstantlarge
 (
-    "DarcyConstantlarge", dimensionSet(1,-3,-1,0,0), 1.0e6
+    "DarcyConstantlarge", dimensionSet(1,-3,-1,0,0),
+    transportProperties.lookupOrDefault<scalar>("darcy_A", 1.0e6)
 );
 
 const dimensionedScalar DarcyConstantsmall
 (
-    "DarcyConstantsmall", dimless, 1.0e-12
+    "DarcyConstantsmall", dimless,
+    transportProperties.lookupOrDefault<scalar>("darcy_q", 1.0e-12)
 );
 
 

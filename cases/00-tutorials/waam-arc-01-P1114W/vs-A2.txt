@@ -1,0 +1,33 @@
+  A2 790W  (0.500 mm stations, window -7.25 to -0.25)
+  P1114 1114W  (0.500 mm stations, window -7.25 to -3.75)
+  compared on 8 points, -7.25 to -3.75 mm, step 0.500 mm (from the coarser run)
+
+        x |  A ref A test     d% |  h ref h test     d% |  w ref w test     d%
+       mm |   mm^2   mm^2        |     mm     mm        |     mm     mm       
+  ----------------------------------------------------------------------------
+    -7.25 |  7.399  8.438  +14.0 |  2.038  2.595  +27.3 |  6.265  5.419  -13.5
+    -6.75 |  8.086  9.369  +15.9 |  2.352  2.886  +22.7 |  6.459  5.507  -14.7
+    -6.25 | 10.036  9.439   -5.9 |  2.414  2.920  +21.0 |  6.839  4.811  -29.7
+    -5.75 |  9.248 10.360  +12.0 |  2.469  3.100  +25.6 |  6.848  5.206  -24.0
+    -5.25 |  9.562 10.489   +9.7 |  2.573  3.165  +23.0 |  6.899  4.742  -31.3
+    -4.75 |  8.959 11.225  +25.3 |  2.728  3.268  +19.8 |  6.467  5.120  -20.8
+    -4.25 |  9.077 11.763  +29.6 |  2.535  3.231  +27.5 |  6.511  5.694  -12.5
+    -3.75 |  8.418 12.014  +42.7 |  2.561  3.295  +28.7 |  6.496  5.491  -15.5
+  ----------------------------------------------------------------------------
+     MEAN |  8.848 10.387  +17.4 |  2.459  3.058  +24.4 |  6.598  5.249  -20.4
+
+  SHAPE
+
+                              A2 790W     P1114 1114W     Zhao sim
+    h/w                        0.3727          0.5825       0.1890
+    vs Zhao                     1.97x           3.08x        1.00x
+    h/(3A/2w)                   1.222           1.030        0.999
+
+    change in h/w              +56.3%
+    gap to Zhao closed        -114.3%
+
+  'gap closed' is the change as a fraction of the distance to Zhao. 100% means
+  the test run reaches Zhao's aspect ratio; a negative number means it moved
+  away. Read it beside the A column: if A itself shifted by more than a couple
+  of percent the two runs are not depositing the same metal and no shape
+  comparison between them is clean, whatever the shape numbers say.

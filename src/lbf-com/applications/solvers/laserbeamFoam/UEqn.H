@@ -25,14 +25,24 @@ nHatM.correctBoundaryConditions();  // ADDED
 Marangoni =
     epsilon1*Marangoni_Constant*(gradT - nHatM*(nHatM & gradT))*mag(gradAlpha);
 
-const scalar Tliquidus1Value = Tliquidus1.value();
-const scalarField& TI = T;
-vectorField& MarangoniI = Marangoni;
-forAll(MarangoniI, celli)
+// The liquidus cliff. epsilon1 already ramps this force from zero at the
+// solidus to full at the liquidus, and Darcy damping already resists motion
+// in the mush, so this is a third and redundant suppression -- and the only
+// one that is a step rather than a ramp. Zhao (2021) Sec 4.2 states the
+// opposite for this alloy: "the solid-liquid coexistence region of aluminum
+// alloy is large, where the temperature ranges from 815 to 906K, and the
+// velocity field still exists."
+if (!marangoniMushy)
 {
-    if(TI[celli] < Tliquidus1Value)
+    const scalar Tliquidus1Value = Tliquidus1.value();
+    const scalarField& TI = T;
+    vectorField& MarangoniI = Marangoni;
+    forAll(MarangoniI, celli)
     {
-        MarangoniI[celli] = vector::zero;
+        if(TI[celli] < Tliquidus1Value)
+        {
+            MarangoniI[celli] = vector::zero;
+        }
     }
 }
 
@@ -73,6 +83,10 @@ fvVectorMatrix UEqn
   + fvm::Sp(DC, U)
   - Marangoni*damper
   - JcrossB*damper
+    // Arc self-field, Zhao Eqs. 22-24 derived. Zero unless
+    // arc_lorentz is set; never double-counts with JcrossB,
+    // which is the numerical potential-solve path.
+  - arcLorentz*damper
   - dropletForce*damper
  ==
     fvOptions(rho, U)

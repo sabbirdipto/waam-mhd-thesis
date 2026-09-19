@@ -15,12 +15,12 @@ FoamFile
 // is what switches the arc on; without this file arcSource stays identically
 // zero and the run is bit-identical to stock laserbeamFoam.
 
-arc_power_W       789.7;    // eta_1*U*I, NOT eta*U*I.
+arc_power_W       1113.7;    // eta_1*U*I, NOT eta*U*I.
                                     // Zhu [32] Eq. 8: eta_1 = eta - eta_2.
-                                    // eta_total 0.7 (Zhao Table 4),
+                                    // eta_total 0.85 (Zhao Table 4),
                                     // eta_2 0.334 (Zhu Eq. 9) is the share
                                     // the droplets already carry in as mass at
-                                    // 1506 K. Was 1512 W, which
+                                    // 1506 K. Was 1836 W, which
                                     // put 103% of U*I into the workpiece.
 goldak_af_m       0.003;             // forward semi-axis, narrow
 goldak_ar_m       0.006;             // rear semi-axis, wide (torch is moving)
@@ -46,7 +46,7 @@ arc_p_zmax_m      0.003;            // applied below arc_z0 + this. Keeps the
                                     // term off free-flying droplets, which
                                     // already carry a prescribed velocity --
                                     // 228 Pa is ~6x a droplet's own weight.
-sym               full;            // full domain -> target 789.666 W
+sym               full;            // full domain -> target 1113.67 W
 
 // Droplets -- Edit 4. The PRESENCE of droplet_radius_m switches them on, the
 // same convention the arc uses. Delete these five lines and the case runs

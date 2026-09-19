@@ -73,3 +73,16 @@ cases/**/mass.*
 __pycache__/
 *.pyc
 src/laserbeamFoam.upstream-DO-NOT-BUILD/
+
+# --- appended 2026-09-19 ---------------------------------------------
+# '*.orig' above was meant for patch backups, but it also matches every
+# case's 0.orig/ template (the initial conditions). Re-include it: in
+# .gitignore the LAST matching rule wins.
+!0.orig/
+!**/0.orig/**
+# patch backups with other suffixes (.drbak from patch_droplet_restart.py)
+*bak
+# coded-object builds, stray logs, scratch cases (zz- prefix = never committed)
+dynamicCode/
+nohup.out
+cases/**/zz-*/

@@ -42,9 +42,20 @@ CASE   = HOME / "thesis/cases/00-tutorials/waam-arc-01"
 
 # --- arc, from caseMatrix.csv row R00-SPSL-paper --------------------------
 ARC_I, ARC_U = 135.0, 16.0
-ETA_TOTAL    = 0.70   # TOTAL arc efficiency, Zhao Table 4 [29].
-                      # Zhu [32] states 0.60-0.85 for GMAW, so 0.70 sits in
-                      # range AS A TOTAL. It is NOT the Goldak coefficient.
+ETA_TOTAL    = 0.85   # TOTAL arc efficiency. Zhu [32] states 0.60-0.85 for
+                      # GMAW; Zhao Table 4 [29] picks 0.70, the BOTTOM of that
+                      # band. MEASURED 2026-09-16: at 0.70 the fused substrate
+                      # is 0.75-1.63 mm wide (pool_width.py, A2) and no cell
+                      # ever reaches the liquidus, against the 8.2 mm bead
+                      # Zhao reports. Closing that needs a 3.24x convection
+                      # enhancement; Marangoni gives 1.5-2.5x. At 0.85 the
+                      # conduction-only fusion zone is 4.58 mm and the needed
+                      # factor is 1.79x -- ordinary.
+                      # GMAW belongs at the top of the band: the electrode is
+                      # consumed, so wire-melting energy is not lost to the
+                      # process, it enters the workpiece as droplet enthalpy.
+                      # 0.70 is a GTAW-like figure, where it is lost.
+                      # It is NOT the Goldak coefficient.
 
 # --- Goldak source power: eta_1 = eta - eta_2, Zhu [32] Eqs. 8 and 9 -------
 # Zhao Eq. 27 calls eta "the arc efficiency for heating molten pool, excluding

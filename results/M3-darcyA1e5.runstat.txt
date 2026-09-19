@@ -1,0 +1,24 @@
+  case      /home/sabbirdipto/thesis/cases/00-tutorials/waam-arc-01-M3-darcyA1e5
+  endTime   1.2 s      maxDeltaT 1e-05 s
+  state     not running (finished, or killed)
+
+  sim       1.2000 / 1.2 s   100.0%   (120000 of 120000 steps)
+  cpu       21181 s elapsed
+  rate      0.1650 s/step   (slope over the last 499 steps)
+  eta       0 min remaining   total 330 min
+
+  linear solves per timestep:
+    T                       1114459 total   9.0 per step
+    p_rgh                    369636 total   3.0 per step
+    pcorr                         1 total   0.0 per step
+
+  startup gates:
+    Arc: Goldak double ellipsoid
+    Metal kappa: two-branch (solid/liquid blended by liquid fraction)
+    Arc: 1072.728429 W in metal below the surface, renormalised x1.038193796 to 1113.7 W (raw 96.3211304% of target)
+    Arc: 1082.646136 W in metal below the surface, renormalised x1.0286833 to 1113.7 W (raw 97.21164911% of target)
+    Arc: 1088.167403 W in metal below the surface, renormalised x1.02346385 to 1113.7 W (raw 97.70740803% of target)
+
+  last deltaT:
+    deltaT = 1e-05
+    deltaT = 1e-05

@@ -1,0 +1,24 @@
+  case      /home/sabbirdipto/thesis/cases/00-tutorials/waam-arc-01-M4-1512W
+  endTime   1.2 s      maxDeltaT 1e-05 s
+  state     not running (finished, or killed)
+
+  sim       1.2000 / 1.2 s   100.0%   (120000 of 120000 steps)
+  cpu       24093 s elapsed
+  rate      0.2080 s/step   (slope over the last 499 steps)
+  eta       0 min remaining   total 416 min
+
+  linear solves per timestep:
+    T                       1509098 total   12.2 per step
+    p_rgh                    370539 total   3.0 per step
+    pcorr                         1 total   0.0 per step
+
+  startup gates:
+    Arc: Goldak double ellipsoid
+    Metal kappa: two-branch (solid/liquid blended by liquid fraction)
+    Arc: 1462.48578 W in metal below the surface, renormalised x1.033856206 to 1512 W (raw 96.72524999% of target)
+    Arc: 1471.902498 W in metal below the surface, renormalised x1.027241955 to 1512 W (raw 97.34804884% of target)
+    Arc: 1478.646277 W in metal below the surface, renormalised x1.022556932 to 1512 W (raw 97.79406591% of target)
+
+  last deltaT:
+    deltaT = 1e-05
+    deltaT = 1e-05

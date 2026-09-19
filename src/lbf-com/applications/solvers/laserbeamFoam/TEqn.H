@@ -71,11 +71,16 @@
           - fvm::Sp(fvc::ddt(rhoCp) + fvc::div(rhophicp), T)
           - fvm::laplacian(kappa, T)
           - fvm::Sp(Qrad_inpl*gradAlphaDamper, T)
+          // Convective half of Eq. 29. Linear in T, so it goes in fully
+          // implicit and exactly -- unlike the T^4 radiation beside it, which
+          // has to be linearised. Zero unless h_conv_Wm2K is set.
+          + fvm::Sp(hConvSurf*gradAlphaDamper, T)
           ==
             laser.deposition()
           + arcSource
           + Joulesource
           + (Qrad_expl - Qv)*gradAlphaDamper
+          + hConvSurf*TRef*gradAlphaDamper
           - TRHS
         );
 
