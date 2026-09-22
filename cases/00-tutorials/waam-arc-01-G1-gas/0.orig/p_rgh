@@ -1,0 +1,46 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  waam-arc-01 -- built by make_waam_case.py. Concrete values, no tokens.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      p_rgh;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    inlet
+    {
+        // Velocity is prescribed on this patch by the Eq. 28 jet, so the
+        // pressure equation needs the flux-consistent gradient here, not a
+        // pressure value. -- tools/patch_shieldgas.py
+        type            fixedFluxPressure;
+        value           uniform 0;
+    }
+    outlet
+    {
+        type            totalPressure;
+        p0              uniform 0;
+        value           uniform 0;
+    }
+    substrateBottom
+    {
+        type            fixedFluxPressure;
+        value           uniform 0;
+    }
+    farField
+    {
+        type            fixedFluxPressure;
+        value           uniform 0;
+    }
+}
+
+// ************************************************************* //

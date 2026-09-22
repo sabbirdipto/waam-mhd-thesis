@@ -1,0 +1,133 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  waam-arc-01 -- built by make_waam_case.py. Concrete values, no tokens.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        // Zhao et al. (2021) Eq. 28 -- shielding gas.
+        // Laminar annular Poiseuille profile between the wire (gas_Rw_m) and
+        // the nozzle (gas_Rn_m), normalised to carry gas_Q_m3_s, centred on
+        // the moving torch. Vz = 0 outside the nozzle and inside the wire.
+        // Patched in by tools/patch_shieldgas.py -- shieldGasEq28
+        type            codedFixedValue;
+        value           uniform (0 0 0);
+        name            shieldGasEq28;
+
+        codeInclude
+        #{
+            #include "IOdictionary.H"
+            #include "mathematicalConstants.H"
+        #};
+
+        code
+        #{
+            const fvPatch& pp = patch();
+            const scalar t = this->db().time().value();
+
+            // caseParameters never changes during a run, and updateCoeffs()
+            // is called every timestep, so read it once per process.
+            static bool init = false;
+            static scalar x0 = 0, y0 = 0, V = 0, Rn = 0, Rw = 0, Q = 0;
+            static scalar K = 0, Ln = 0;
+
+            if (!init)
+            {
+                IOdictionary cp
+                (
+                    IOobject
+                    (
+                        "caseParameters",
+                        this->db().time().constant(),
+                        this->db(),
+                        IOobject::MUST_READ,
+                        IOobject::NO_WRITE,
+                        false
+                    )
+                );
+
+                x0 = cp.get<scalar>("arc_x0_m");
+                y0 = cp.getOrDefault<scalar>("arc_y0_m", 0.0);
+                V  = cp.get<scalar>("travel_speed_m_s");
+                Rn = cp.get<scalar>("gas_Rn_m");
+                Rw = cp.get<scalar>("gas_Rw_m");
+                Q  = cp.get<scalar>("gas_Q_m3_s");
+
+                Ln = Foam::log(Rn/Rw);
+                const scalar den =
+                    Foam::pow4(Rn) - Foam::pow4(Rw)
+                  - Foam::sqr(Foam::sqr(Rn) - Foam::sqr(Rw))/Ln;
+                K = 2.0*Q/(Foam::constant::mathematical::pi*den);
+
+                const scalar rpk =
+                    Foam::sqrt((Foam::sqr(Rn) - Foam::sqr(Rw))/(2.0*Ln));
+                const scalar upk =
+                    K*( Foam::sqr(Rn) - Foam::sqr(rpk)
+                      + (Foam::sqr(Rn) - Foam::sqr(Rw))
+                       *Foam::log(rpk/Rn)/Ln );
+
+                Info<< "shieldGasEq28: " << Q*6.0e4 << " L/min through Rw "
+                    << Rw*1e3 << " mm to Rn " << Rn*1e3
+                    << " mm, nozzle centre x = " << x0 << " + " << V
+                    << "*t, peak " << upk << " m/s at r = " << rpk*1e3
+                    << " mm, mean "
+                    << Q/(Foam::constant::mathematical::pi
+                         *(Foam::sqr(Rn) - Foam::sqr(Rw)))
+                    << " m/s" << endl;
+
+                init = true;
+            }
+
+            const scalar xc = x0 + V*t;
+            const vectorField& Cf = pp.Cf();
+            vectorField& Up = *this;
+
+            forAll(Up, i)
+            {
+                const scalar dx = Cf[i].x() - xc;
+                const scalar dy = Cf[i].y() - y0;
+                const scalar r = Foam::sqrt(dx*dx + dy*dy);
+
+                scalar u = 0.0;
+                if (r > Rw && r < Rn)
+                {
+                    u = K*( Foam::sqr(Rn) - Foam::sqr(r)
+                          + (Foam::sqr(Rn) - Foam::sqr(Rw))
+                           *Foam::log(r/Rn)/Ln );
+                    u = Foam::max(u, scalar(0));
+                }
+
+                Up[i] = vector(0, 0, -u);
+            }
+        #};
+    }
+    outlet
+    {
+        type            pressureInletOutletVelocity;
+        value           uniform (0 0 0);
+    }
+    substrateBottom
+    {
+        type            noSlip;
+    }
+    farField
+    {
+        type            noSlip;
+    }
+}
+
+// ************************************************************* //

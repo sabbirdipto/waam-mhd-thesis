@@ -1,0 +1,62 @@
+  arc:  1113.7 W  [caseParameters, full domain]
+  droplets: 722 W as mass  [0.450 g/s at 1506 K]   total in 1836 W
+  mesh: 88,200 cells, geometry read from 0/  (cell volume 0.0985 to 0.394 mm^3, ratio 4)
+  geometry check passed on all 88,200 cells
+
+     time   T metal     T gas    bottom   far met   far gas    pool    volume   d sol   d liq  U metal    U gas   E kept
+        s         K         K         K         K         K   cells      mm^3      mm      m/s      m/s        %
+  -------------------------------------------------------------------------------------------------------------------
+      1.8    1505.0    1504.3     757.4     466.3     466.4     438     54.75    1.75    0.75   1.3443   3.3304     80.3
+     1.82     937.3     928.6     757.1     467.9     468.1     430     53.75    1.75    0.75   0.2222   3.1992     79.9
+     1.84     998.5    1432.5     757.2     469.2     468.9     460     57.50    1.75    1.25   0.5716   3.1538     80.0
+     1.86     927.4     915.7     757.7     470.8     470.7     419     52.38    1.75    0.75   0.2325   3.1447     79.8
+     1.88     955.5     946.3     757.8     472.0     471.8     445     55.63    1.75    1.25   0.4545   3.0099     79.9
+      1.9    1505.3    1504.6     758.3     473.3     505.4     446     55.75    1.75    0.75   1.2035   3.1486     80.1
+     1.92     936.5     925.6     757.8     474.7     531.5     431     53.88    1.75    0.75   0.2404   4.2830     79.8
+     1.94    1482.2    1481.9     757.3     476.0     529.5     465     58.13    1.75    1.25   1.0167   3.7162     79.9
+     1.96     926.1     915.1     757.3     477.3     528.0     413     51.63    1.75    0.75   0.1841   3.5127     79.7
+     1.98     949.9     937.6     757.5     478.6     491.8     447     55.88    1.75    1.25   0.2769   3.6803     79.7
+        2    1505.6    1504.7     758.3     479.8     495.8     436     54.50    1.75    0.75   1.0413   3.5163     79.9
+
+  GATE:
+    T metal below ~1600 K ........ vaporisation is disabled, so a runaway has
+                                   no ceiling. Read the METAL column: T gas
+                                   legitimately spikes near a droplet.
+    pool volume > 0 AND CONTINUOUS  a pool that appears at each droplet and
+                                   vanishes between them is not a weld pool,
+                                   it is three separate solidification events.
+                                   Every row must be non-zero, not just some.
+    depth > 0.5 mm ............... more than one cell layer of the substrate
+                                   is fused. At exactly 0.25 mm the pool is
+                                   one cell deep and the number is the mesh
+                                   talking, not the physics.
+    d liq vs d sol ............... 'd sol' is measured to the bottom of the
+                                   MUSHY zone (815 K up), 'd liq' to the
+                                   fully liquid boundary (906 K up). Zhao's
+                                   Figs. 11 and 18 colour to 906 K, so quote
+                                   'd liq' against his ~1 mm penetration.
+                                   Al-5Mg has a 91 K mushy interval, so the
+                                   two differ a lot -- do not mix them.
+    d sol < 4 mm ................. the mushy zone has not reached the plate
+                                   bottom. Plate is 4 mm (Zhao's coupon)
+                                   since the Stage 1 trim, NOT 6 mm.
+    bottom < 815 K ............... the underside must stay below the solidus
+                                   or the plate is melting through. It WILL
+                                   climb: Eq. 29 (h = 80) is live now but
+                                   removes only ~2% of the budget, and the
+                                   trimmed plate is 6,000 mm3 -- a third of
+                                   the old thermal mass. Watch for a plateau;
+                                   a linear climb means melt-through.
+    far met < 815 K .............. NO LONGER a domain-size gate. Since the
+                                   trim, farField is the PHYSICAL long edge of
+                                   Zhao's 50 x 30 x 4 mm coupon, 15 mm from
+                                   the bead, and it is EXPECTED to warm. The
+                                   gate is only that it stays well below the
+                                   solidus. 'far gas' is not a gate at all:
+                                   argon is advected, so it reports where the
+                                   plume went, not how far heat conducted --
+                                   and it moved with the trim, so it is not
+                                   comparable across mesh changes.
+
+  Al-5Mg solidus 815 K, liquidus 906 K. 'Pool' is above the SOLIDUS,
+  i.e. mushy plus fully liquid -- the region that is no longer solid.
