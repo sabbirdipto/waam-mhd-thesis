@@ -95,3 +95,5 @@ cases/**/zz-*/
 **/0/C
 **/0/C[xyz]
 **/0/V
+cases/**/system/controlDict.*
+cases/**/bead_profile_*.csv
