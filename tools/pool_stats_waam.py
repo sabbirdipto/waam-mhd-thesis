@@ -58,7 +58,10 @@ WHAT IT REPORTS, per written time
               Darcy source drives velocity to machine zero in solid cells,
               so this column is a liquid-fraction detector as much as a
               velocity one.
-    E kept    thermal energy in the metal as a percentage of ARC energy
+    E kept    metal enthalpy, sensible + latent, ALPHA-WEIGHTED, as a
+              percentage of arc + droplet energy. rev 5: values printed
+              by earlier revisions are NOT comparable -- see the note at
+              the Ein calculation.
               delivered. With droplets this EXCEEDS 100 and should: each
               droplet carries ~16.5 J of sensible enthalpy and up to ~5.9 J
               of latent heat, against 1512 W x 33.3 ms = 50 J of arc energy
@@ -82,6 +85,10 @@ CASE = Path.cwd()
 
 TSOL, TLIQ = 815.0, 906.0      # materials/transportProperties
 RHO, CP    = 2650.0, 940.0     # cp from closing the energy balance on the
+LATENT     = 3.58e5             # J/kg, Zhao Table 4. Counted for the
+                                # LIQUID fraction only: latent released on
+                                # freezing has already become sensible heat
+                                # and is counted there.
                                # uniform run: 1000/1.064 = 940 J/kg/K
 T0         = 300.0
 
@@ -300,7 +307,40 @@ def main():
         depth = -min(C[c][2] for c in molten)*1e3 if molten else 0.0
         depthL = -min(C[c][2] for c in liquid)*1e3 if liquid else 0.0
 
-        Ein = RHO*CP*sum((T[c] - T0)*V[c] for c in metal)
+        # rev 5 (2026-09-23): alpha-WEIGHTED, and latent heat included.
+        #
+        # The old form was  RHO*CP*sum((T[c]-T0)*V[c] for c in metal)  taken
+        # over metal = [alpha > 0.5]. Two defects, the second being exactly
+        # what check_droplet.py found in its rev 2:
+        #
+        #   1. THRESHOLD, NOT MASS. It took the whole volume of every cell
+        #      more than half metal and nothing at all from the rest. The
+        #      interface is where a bead's metal lives: G1 carried 18.6 mm^3
+        #      there (bead a>.5 180.27 against aV 198.87), worth 27.8 J,
+        #      invisible to this sum. A flatter bead has more interface
+        #      cells, so the error moved WITH the thing being measured.
+        #   2. NO LATENT HEAT, while the DENOMINATOR includes it -- DROP_W
+        #      is built as Cs*(Tsol-T0) + Cl*(Tdrop-Tliq) + latent. The
+        #      numerator and denominator were accounting differently.
+        #
+        # Consequence: it was a substrate thermometer. The 6,000 mm^3 plate
+        # dominates the sum, so the 17 mm^3 pool difference between M2 and
+        # G1 moved it 4.2 J = 0.24%, against a 0.1% print resolution -- and
+        # the 16.1 J of latent heat that difference also represents was not
+        # counted at all. G1 read 81.25 against M2's 81.05 and that null
+        # MEASUREMENT was mistaken for a null RESULT.
+        #
+        # Liquid fraction is Zhao Eq. 8, the linear law the solver uses.
+        Ein = 0.0
+        for c in range(n):
+            if a[c] <= 0.0:
+                continue
+            mc = RHO*a[c]*V[c]
+            Ein += mc*CP*(T[c] - T0)
+            if T[c] >= TLIQ:
+                Ein += mc*LATENT
+            elif T[c] > TSOL:
+                Ein += mc*LATENT*(T[c] - TSOL)/(TLIQ - TSOL)
         # Denominator is arc PLUS droplet enthalpy. Counting the arc alone
         # put this at 119-133% at 1512 W and 150-164% at 790 W -- both exactly
         # (arc+droplet)/arc, i.e. a bookkeeping artefact, not lost energy.

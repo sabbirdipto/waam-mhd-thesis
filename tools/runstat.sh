@@ -14,7 +14,7 @@
 # Needs no OpenFOAM environment -- it only reads the log.
 
 CASE=${1:-$HOME/thesis/cases/00-tutorials/waam-arc-01}
-LOG=$CASE/log.laserbeamFoam
+LOG=$(ls "$CASE"/log.laserbeamFoam* 2>/dev/null | head -1)
 
 if [ ! -f "$LOG" ]; then
     echo "  no log at $LOG"
